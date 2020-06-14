@@ -1,0 +1,1025 @@
+% \iffalse meta-comment
+% Copyright (C) 2019--2020
+% by Phelype Oleinik <phelype.oleinik@latex-project.org>
+% 
+% This work may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, either version 1.3c of this license
+% or (at your option) any later version. The latest version of this
+% license is in
+% 
+%     http://www.latex-project.org/lppl.txt
+% 
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work is "maintained" (as per the LPPL maintenance status)
+% by Phelype Oleinik.
+% 
+%<*driver>
+\documentclass[a4paper,full,inline]{l3doc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{namedef}
+\usepackage{bookmark}
+\usepackage{xcolor}
+
+\makeatletter
+% Redefine LaTeX internals using \named
+\let\l@ngrel@x\relax
+
+% Could work:
+% \NamedDelim{ }{ }
+% \named\def\test# who {# who }\show\test
+
+% Shouldn't be allowed:
+% \NamedDelim \bgroup \egroup
+% \named\def\test#{who}{#{who}}\show\test
+
+% Should work?
+% \catcode`X=13
+% \NamedDelim X X
+% \named\def\test#XwhoX{#XwhoX}\show\test
+
+\NamedDelim[]
+
+\named\def\newcommand{\@star@or@long\new@command}
+\named\def\@star@or@long#[next]{%
+  \@ifstar
+   {\let\l@ngrel@x\relax#[next]}%
+   {\let\l@ngrel@x\long#[next]}}
+\named\def\new@command#[macro]{%
+  \@testopt{\@newcommand#[macro]}0}
+\named\def\@newcommand#[macro][#[narg]]{%
+  \kernel@ifnextchar [{\@xargdef#[macro][#[narg]]}%
+                {\@argdef#[macro][#[narg]]}}
+\named\long\def\@argdef#[macro][#[narg]]#[defn]{%
+   \@ifdefinable #[macro]{\@yargdef#[macro]\@ne{#[narg]}{#[defn]}}}
+\named\long\def\@xargdef#[macro][#[narg]][#[optarg]]#[defn]{%
+  \@ifdefinable#[macro]{%
+     \expandafter\def\expandafter#[macro]\expandafter{%
+          \expandafter
+          \@protected@testopt
+          \expandafter
+          #[macro]%
+          \csname\string#[macro]\endcsname
+          {#[optarg]}}%
+       \expandafter\@yargdef
+          \csname\string#[macro]\endcsname
+           \tw@
+           {#[narg]}%
+           {#[defn]}}}
+\NamedDelim $ $
+\named\long\def\@testopt#$macro$#$default${%
+  \kernel@ifnextchar[{#$macro$}{#$macro$[{#$default$}]}}
+\NamedDelim XY
+\named\def\@protected@testopt#XmacroY{%
+  \ifx\protect\@typeset@protect
+    \expandafter\@testopt
+  \else
+    \@x@protect#XmacroY%
+  \fi}
+\NamedDelim ()
+\named\long \def \@eyargdef #(macro)#(hasopt)#(narg){%
+  \ifx#(hasopt)\tw@
+    \def\reserved@b##11{[####1]}%
+  \else
+    \let\reserved@b\@gobble
+  \fi
+  \expandafter
+    \@yargd@f \expandafter{\number #(narg)}#(macro)%
+}
+\NamedDelim ||
+\named\long \def \@yargd@f#|narg|#|macro|{%
+  \def \reserved@a ##1#|narg|##2##{%
+    \expandafter\def\expandafter#|macro|\reserved@b ##1#|narg|%
+    }%
+  \l@ngrel@x \reserved@a 0##1##2##3##4##5##6##7##8##9###|narg|%
+}
+\NamedDelim []
+\makeatother
+% Then load a package which does a lot of \newcommands to check
+\usepackage{blindtext}
+
+\begingroup
+  \lccode`~=`\%
+  \lowercase{\endgroup
+  \def\VRBCodes{^^A
+    \catcode`~=13
+    \def~{\%\global\linenofalse}}
+}
+\makeatletter
+\define@key{FV}{labelformat}{%
+  \def\FV@LabelFormat{#1}%
+  \ifx\FV@LabelFormat\FV@None
+    \let\FV@LabelFormat\relax
+  \fi}
+\def\FV@Label@ii[#1]#2\@nil{%
+  \def\@tempa{#1}%
+  \ifx\@tempa\empty
+    \def\FV@LabelBegin{\FV@LabelFormat#2}%
+  \else
+    \def\FV@LabelBegin{\FV@LabelFormat#1}%
+    \def\FV@LabelPositionBottomLine{\@ne}%
+  \fi
+  \def\FV@LabelEnd{\FV@LabelFormat#2}}
+\makeatother
+\DefineVerbatimEnvironment%
+  {example}{Verbatim}
+  {
+    gobble=3,
+    frame=single,
+    commandchars=|<>,
+    codes={\VRBCodes},
+    numbers=left,
+    labelformat=\rmfamily\bfseries,
+  }
+\def\mshow#1{> \string#1=\meaning#1}
+\newif\iflineno\linenotrue%\fi
+\def\theFancyVerbLine{^^A
+  \rmfamily
+  \scriptsize
+  \color{gray}^^A
+  \iflineno
+    \arabic{FancyVerbLine}^^A
+  \else
+    \global\addtocounter{FancyVerbLine}{-1}^^A
+  \fi
+  \global\linenotrue
+}
+
+% Substitute lmtt/it by lmtt/sl
+\DeclareFontShape{T1}{lmtt}{lc}{it}{<->ssub*lmtt/lc/sl}{}
+
+\begin{document}
+  \overfullrule=5pt
+  \DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \GetFileInfo{\jobname.sty}
+%
+% \title{^^A
+%   The \pkg{namedef} package\\
+%   Using named parameters in definitions^^A
+%   \thanks{This file has version number 0.2,
+%           last revised \today.}
+% }
+%
+% \author{^^A
+%  Phelype H. Oleinik\thanks
+%    {^^A
+%      E-mail:
+%        \href{mailto:phelype.oleinik@latex-project.org}
+%          {phelype.oleinik\meta{at}latex-project.org}^^A
+%    }^^A
+% }
+%
+% \date{Released \today}
+%
+% \maketitle
+%
+% \begin{documentation}
+%
+% \section{Introduction}
+%
+% This package provides a somewhat dubious, however useful way to make
+% \TeX{} definitions using \cs{def} and the like. The usual way to
+% define a ``hello world'' macro is |\def\hello#1{Hello #1!}|. Sure,
+% this is easy (for people using this package, at least), but sometimes
+% I stumbled upon the case where I had a macro defined with something
+% like |\def\macro#1#2#3#4#5#6{#6#1#4#3#5#2}| and then I had to, for
+% whatever reason, add another argument before |#1|. Oh, the pain. But
+% OK, occupational hazard. And then I change my mind and needed to
+% revert. If you are reading this you probably have already been through
+% something like this.
+%
+% This package defines a macro, \cs{named}, which acts like a prefix for
+% \cs{def} (the same way as \cs{long} and the like), and allows one to
+% rewrite the \cs{hello} macro like this:
+% |\named\def\hello#[who]{Hello #[who]!}|. Sure, a macro with one
+% argument won't see much benefit from it, but as soon as that number
+% increases, a better description of the arguments comes in handy.
+%
+% The package also defines a macro \cs{NamedDelim} which allows the user
+% to change the delimiter of the named parameters to their liking. For
+% example, after |\NamedDelim //| the example above changes to:
+% |\named\def\hello#/who/{Hello #/who/!}|. The default is
+% |\NamedDelim []|.
+%
+% \section{Usage}
+%
+% \begin{function}{\named}
+%   \begin{syntax}
+%     \cs{named}\meta{other~prefixes}\meta{\cs{}(e,g,x)def}^^A
+%\meta{parameter text}\marg{replacement text}
+%   \end{syntax}
+%   The \cs{named} macro will grab the \meta{other~prefixes}, the
+%   \cs{def} command, the \meta{parameter~text} and
+%   \meta{replacement~text}, and will replace every ocurrence of
+%   |#[|\meta{text}|]| by a suitable |#|\meta{number} for \TeX{} to
+%   carry on with the definition.
+%
+%   The \meta{other~prefixes} can be any of \cs{long}, \cs{outer},
+%   \cs{global}, and \cs{protected}. As for \TeX, their relative order
+%   doesn't matter, but \cs{named} \emph{must} be the first so it can
+%   see the other prefixes and use them accordingly. Any prefix placed
+%   before \cs{named} will not have the desired effect.
+%
+%   The \cs{def} command can be anything. The package will not check the
+%   validity of the command, it will simply drag the token along until
+%   the point where the definition is made. This allows one to use any
+%   of \TeX's primitive \cs{def} commands as well as, for instance,
+%   \pkg{expl3}'s \cs{cs_new:Npn} or the like. However \cs{named} will
+%   not work with \LaTeX's \cs{newcommand} or \pkg{xparse}'s
+%   \cs{NewDocumentCommand} and the like because their syntax is is
+%   completely different.
+%
+%   The \meta{parameter~text} is the same \meta{parameter~text} that
+%   would be used if the \cs{named} prefix wasn't used with the
+%   difference that all |#|\meta{number} must be replaced by a
+%   |#[|\meta{name}|]|. The characters |[| and |]| are mandatory and the
+%   character |]| cannot appear in \meta{name}, however |[| and |]| can
+%   still appear in the \meta{parameter~text} without restriction; the
+%   special meaning is only applied after a parameter token (|#|).
+%   \meta{name} can be anything that when fully expanded returns a
+%   string of characters (anything valid in |\csname|\dots|\endcsname|).
+%   The \meta{parameter~text} cannot, however, contain numbered
+%   parameters anymore (|#1|,~|#2|,~\dots).
+%
+%   The \meta{replacement~text} is also the same \meta{replacement~text}
+%   that would be used otherwise, with all |#|\meta{number} replaced by
+%   |#[|\meta{name}|]|.
+% \end{function}
+%
+% \begin{function}{\NamedDelim,\globalNamedDelim}
+%   \begin{syntax}
+%     \cs{NamedDelim}\meta{begin-token}\meta{end-token}
+%     \cs{globalNamedDelim}\meta{begin-token}\meta{end-token}
+%   \end{syntax}
+%   These macros change the delimiter of the named parameters from the
+%   default |#[|\meta{name}|]| to
+%   |#|\meta{begin-token}\meta{name}\meta{end-token}. Both delimiters
+%   must be one single non-macro token. Characters with \emph{weird}
+%   catcodes shouldn't be used as well ($0,1,2,5,6,9,10,13,14,15$).
+%
+%   \cs{globalNamedDelim} is the same as \cs{NamedDelim} except that the
+%   effect of the former has global scope, while the latter is local to
+%   a group. While you can use both, you should be careful not to
+%   interleave them too much or you might exhaust \TeX's save stack.
+%
+%   Furthermore, catcode changes to the delimiter will make the code not
+%   work:
+%   \begin{Verbatim}
+%     \catcode`|=11
+%     \NamedDelim{|}{|}
+%     \catcode`|=12
+%     \named\def\wrong#|oops|{#|oops|}
+%   \end{Verbatim}
+%   Other than that pretty much anything goes as delimiter, and it
+%   doesn't matter if \meta{begin-token} and \meta{end-token} are the
+%   same or not.
+%
+%   The choice of delimiter is mostly ``what you like better''. Neither
+%   the delimter tokens nor the name of the parameter make it to the
+%   macro itself. They are just code-level abstractions. Thus the
+%   delimiter should be something that the person writing the code can
+%   easily distinguish from the rest of the code. For example, the code
+%   |\NamedDelim xz \named\def\test#xyz{xyz#xyzxyz}| works, but its
+%   readability is questionable.
+% \end{function}
+%
+% \subsection{Limitations}
+%
+% As already stated the command does not work (and I don't intend to
+% make it work) with \LaTeXe's \cs{newcommand} and its family because
+% a) the argument specification is by the number of arguments, so you
+% can't ``declare'' them as with \cs{def}, and b) because it's supposed
+% to be used for user-level interfaces, which usually (and preferably)
+% have a low argument count, so numbering shouldn't be a problem.
+% For \pkg{xparse}'s \cs{NewDocumentCommand} the situation is the same.
+% Other than these, \cs{named} should work for whatever type of
+% definition that uses the
+% \meta{parameter~text}|{|\meta{replacement~text}|}| syntax.
+%
+% Another limitation that I'd like to change in a future release (but
+% still don't know the best way to make the interface) is to support
+% definition commands which go beyond the 
+% \meta{parameter~text}|{|\meta{replacement~text}|}| syntax. For
+% instance, in \pkg{expl3} a conditional that checks whether its
+% argument is negative can be defined like this (for integers, of
+% course):
+% \begin{Verbatim}
+%   \prg_new_conditional:Npnn \namedef_if_negative:n #1 { T, F, TF }
+%     {
+%       \if_int_compare:w #1 < 0
+%         \prg_return_true:
+%       \else:
+%         \prg_return_false:
+%       \fi:
+%     }
+% \end{Verbatim}
+% And if one tried to use \cs{named} in that definition it would fail
+% because this command takes one extra argument before the
+% \meta{replacement~text}. Something could be done to allow one (or
+% more) extra argument before the \meta{replacement~text}.
+%
+% \medskip
+% One serious limitation is when used with definitions that expand their
+% argument, namely \cs{edef} and \cs{xdef}. This type of definition
+% expands tokens as it reads them, possibly changing their meaning
+% during the process. \cs{named}, however, first grabs the definition as
+% argument to process the named arguments before actually performing the
+% definition, so these ``unexpected'' changes of meaning might make the
+% code misbehave. While writing this manual I could think of two (and a
+% half) situations which will be problematic and how to work around them
+% (sorry, no solution for now; suggestions are welcome :).
+%
+%^^A \begingroup
+% \edef\hash{\string#}
+% \edef\¿{\csname @gobble\expandafter\endcsname\string\\}
+% \def\nedeft{\ttfamily\¿named\¿edef\¿test}
+%
+% \subsubsection{\nedeft\{\¿string\#[arg]\}}
+% \label{sec:edef wa1}
+%
+% The normal (no \cs{named}) counterpart of this one is a perfectly
+% valid definition: |\edef\test{\string#1}|. While expanding the
+% \meta{replacement~text}, \cs{string} turns the parameter token |#|$_6$
+% into a character |#|$_{12}$, thus defining |\test| to expand to the
+% two characters |#1|. When using \cs{named}, however, the replacement
+% routine doesn't know what \cs{string} does to the token next to it, so
+% it goes on and treats |#[arg]| as one named argument only to find out
+% that it was never defined in the \meta{parameter~text}, so it aborts
+% the definition with an error.
+%
+% This will occur in the specific case where the user wishes to have the
+% macro expand to the characters |#[arg]|, without replacement by a
+% parameter. In this case the work-around is to temporarily switch the
+% delimiter tokens of \cs{named}'s scanner:
+% \begin{Verbatim}
+%   \NamedDelim||
+%   \named\edef\test{\string#[arg]}
+%   \NamedDelim[]
+% \end{Verbatim}
+% in which case the scanner will still see the |#| as a parameter token
+% but since it is no longer followed by a delimiter, it will be simply
+% passed on to the definition. Afterwards, at the time \TeX{} tries to
+% carry on with the definition, \cs{string} will do its thing to |#|
+% without further problems.
+%
+% \subsubsection{\nedeft\#[arg]\{\¿string\}\#[arg]\}}
+% \label{sec:edef wa2}
+%
+% This one, as the previous, works fine without \cs{named}:
+% |\edef\test#1{\string}#1}|. Again, when \TeX{} scans this definition,
+% it will expand \cs{string} which will turn the end group token |}|$_2$
+% into a character |}|$_{12}$, which will have \TeX{} end the definition
+% with the next~|}|$_2$, after the |#1|. This only works because \TeX{}
+% does not grab the whole thing as argument before expanding. Which is
+% precisely what \cs{named} does.
+%
+% When \cs{named} grabs the definition as argument the first |}|
+% ends the \meta{replacement~text}, so what \cs{named} effectively sees
+% is |\edef\test#[arg]{\string}|, which is then processed (|#[arg]| is
+% replaced by |#1|) and left back in the input stream for \TeX{} to do
+% its thing, however the replacement |#[arg]| is never replaced:
+% |\edef\test#1{\string}#[arg]}|, then when \TeX{} tries to do the
+% definition it will complain about an ``! Illegal parameter number in
+% definition of |\test|.''
+%
+% The work-around in this case is to do a dirty brace trick to lure
+% \cs{named} into grabbing the whole thing as argument, but which will
+% disappear at the time \TeX{} performs the expansion and definition.
+% One option is |\iffalse{\fi|:
+% \begin{Verbatim}
+%   \named\edef\test#[arg]{%
+%     \iffalse{\fi \string}#[arg]}
+% \end{Verbatim}
+% In this example \cs{named} will process everything, but at the time of
+% the definition the entire |\iffalse{\fi| thing expands to nothing and
+% the final definition becomes the same as the one without \cs{named}.
+% The |\iffalse{\fi| block can also be left in the definition
+% \emph{without} named and the result will be the same. One could argue
+% that using the brace hack is safer because it doesn't change the
+% definition, yet avoid problems when grabbing the definition as
+% argument in a general situation.
+%
+% \let\SVsubsec\thesubsubsection
+% \def\thesubsubsection{^^A
+%   \thesubsection .\number\numexpr\value{subsubsection}-1,5}
+%
+% \subsubsection{\nedeft\#[arg]\{\¿string\{\#[arg]\}}
+% \label{sec:edef wa3}
+%
+% \let\thesubsubsection\SVsubsec
+%^^A \endgroup
+%
+% This is rather similar to the previous one, except that the brace
+% later-to-be-detokenized begins a group: |\edef\test#1{\string{#1}|.
+% Here \TeX{} also expands \cs{string} and makes |{|$_1$ a |{|$_{12}$
+% which does not count in the brace balancing. \cs{named}, however, will
+% count it when grabbing the definition as argument and will require one
+% more |}|$_2$. If the code is run as is \TeX{} will probably report a
+% ``File ended while scanning use of \dots'' error unless there happens
+% to be a matching |}|$_2$ somewhere else, in which case the definition
+% will just go wrong. The work-around here is the same as the one
+% before, with |}| instead:
+% \begin{Verbatim}
+%   \named\edef\test#[arg]{%
+%     \string{#[arg]\iffalse}\fi}
+% \end{Verbatim}
+% This will ensure that \cs{named} will see the |}| it needs to grab the
+% definition correctly and will disappear once the definition is done.
+%
+% \section{Examples}
+%
+% The following examples show two definitions each, which are the same,
+% but the second uses \cs{named}. The third line in each example shows
+% the \cs{meaning} of the defined macro.
+%
+% First the basics, replacing a numbered parameter by a named one:
+%   \named\def\hello#[who]{Hello #[who]!}
+% \begin{example}[label=Basics]
+%         \def\hello#1{Hello #1!}
+%   \named\def\hello#[who]{Hello #[who]!}
+%   |mshow|hello
+% \end{example}
+% \smallskip
+%
+% Prefixes can be added at will after the \cs{named} prefix:
+%   \named\protected\long\edef\hello#[who]{Hello #[who]!}
+% \begin{example}[label=Prefixes]
+%         \protected\long\edef\hello#1{Hello #1!}
+%   \named\protected\long\edef\hello#[who]{Hello #[who]!}
+%   |mshow|hello
+% \end{example}
+% \smallskip
+%
+% Whatever prefixes put before \cs{named} will be lost. Notice that
+% even though \cs{protected} is used, the macro itself is not defined
+% with \cs{protected}:
+%   \protected\named\long\edef\hello#[who]{Hello #[who]!}
+% \begin{example}[label=Wrong Prefixes]
+%   \protected      \long\edef\hello#1{Hello #1!}
+%   \protected\named\long\edef\hello#[who]{Hello #[who]!}
+%   |mshow|hello
+% \end{example}
+% \smallskip
+%
+% This example is just to show that the named argument delimiter doesn't
+% interfere with the text in the macro:
+%   \named\def\hello[#[who]]{Hello #[who]!}
+% \begin{example}[label=Argument delimited by \texttt{[} and \texttt{]}]
+%         \def\hello[#1]{Hello #1!}
+%   \named\def\hello[#[who]]{Hello #[who]!}
+%   |mshow|hello
+% \end{example}
+% \smallskip
+%
+% However, for readability, the delimiter can be changed to something
+% else:
+%   \named\def\hello[#[who]]{Hello #[who]!}
+% \begin{example}[label=Argument delimited by \texttt{[} and \texttt{]},
+%   commandchars=/<>,firstnumber=0]
+%   \NamedDelim{|}{|}
+%         \def\hello[#1]{Hello #1!}
+%   \named\def\hello[#|who|]{Hello #|who|!}
+%   /mshow/hello
+% \end{example}
+% \smallskip
+%
+% This example demonstrates multiple arguments and arbitrary
+% \meta{parameter~text}:
+%   \named\def\cfbox #[color] to #[width]#[content]{%
+%           \fbox{\hbox to #[width]{\color{#[color]}#[content]}}}
+% \begin{example}[label=More arguments]
+%         \def\cfbox #1 to #2#3{\fbox{\hbox to #2{\color{#1}#3}}}
+%   \named\def\cfbox #[color] to #[width]#[content]{%
+%           \fbox{\hbox to #[width]{\color{#[color]}#[content]}}}
+%   |mshow|cfbox
+% \end{example}
+% \smallskip
+%
+% \TeX's weird |#{| argument can be used as well:
+%   \named\def\cbox #[color] to #[width]#{^^A
+%      \hbox to #[width]\bgroup\color{#[color]}\let\next= }
+% \begin{example}[label=Weird arguments]
+%         \def\cbox #1 to #2#{\hbox to #2\bgroup\color{#1}\let\next= }
+%   \named\def\cbox #[color] to #[width]#{%
+%           \hbox to #[width]\bgroup\color{#[color]}\let\next= }
+%   |mshow|cbox
+% \end{example}
+% \smallskip
+%
+%  {\NamedDelim XX
+%   \named\xdef\test{\string#[arg]}}
+% \begin{example}[commandchars=/<>, label=
+%   \texttt{\string\edef} workaround \ref{sec:edef wa1}]
+%         \edef\test{\string#1}
+%   \NamedDelim || /global/linenofalse
+%   \named\edef\test{\string#[arg]} /global/linenofalse
+%   \NamedDelim []
+%   /mshow/test
+% \end{example}
+% \smallskip
+%
+%   \named\edef\test#[arg]{\iffalse{\fi\string}#[arg]}
+% \begin{example}[label=
+%   \texttt{\string\edef} workaround \ref{sec:edef wa2}]
+%         \edef\test#1{\string}#1}
+%   \named\edef\test#[arg]{\iffalse{\fi\string}#[arg]}
+%   |mshow|test
+% \end{example}
+% \smallskip
+%
+%   \named\edef\test#[arg]{\string{#[arg]\iffalse}\fi}
+% \begin{example}[label=
+%   \texttt{\string\edef} workaround \ref{sec:edef wa3}]
+%         \edef\test#1{\string{#1}
+%   \named\edef\test#[arg]{\string{#[arg]\iffalse}\fi}
+%   |mshow|test
+% \end{example}
+% \smallskip
+%
+% \end{documentation}
+%
+% \begin{implementation}
+%
+% \section{\pkg{namedef} Implementation}
+%
+%    \begin{macrocode}
+%<*package>
+%<@@=namedef>
+%    \end{macrocode}
+%
+% Load \pkg{expl3}, either through \cs{RequirePackage} or through
+% inputting the generic loader, depending on the format in use
+% (copied from Bruno Le Floch's \pkg{gtl}).
+%    \begin{macrocode}
+\begingroup\expandafter\expandafter\expandafter\endgroup
+\expandafter\ifx\csname RequirePackage\endcsname\relax
+  \input expl3-generic.tex
+\else
+  \RequirePackage{expl3}[2018-05-15]
+\fi
+\ExplSyntaxOn
+\cs_if_exist:NTF \ProvidesExplPackage
+  {
+    \cs_new_eq:NN \@@_end_package_hook: \prg_do_nothing:
+    \ExplSyntaxOff
+    \ProvidesExplPackage
+  }
+  {
+    \cs_new_eq:NN \@@_end_package_hook: \ExplSyntaxOff
+    \group_begin:
+    \ExplSyntaxOff
+    \cs_set_protected:Npn \@@_tmp:w #1#2#3#4
+      {
+        \group_end:
+        \tl_gset:cx { ver @ #1 . sty } { #2 ~ v#3 ~ #4 }
+        \cs_if_exist_use:NF \wlog { \iow_log:x }
+          { Package: ~ #1 ~ #2 ~ v#3 ~ #4 }
+      }
+    \@@_tmp:w
+  }
+      {namedef} {2019-05-15} {0.1}
+      {Using named parameters in definitions (PHO)}
+%    \end{macrocode}
+%
+% \begin{macro}{
+%     flag @@_parm_count,
+%     \c_@@_prefix_tl,
+%   }
+%   A flag (mis)used as a counter to keep track of the parameter number
+%   and a prefix to use as name space for temporary macros.
+%    \begin{macrocode}
+\flag_new:n { @@_parm_count }
+\tl_const:Nn \c_@@_prefix_tl { namedef~parm~-> }
+\tl_new:N \l_@@_macro_tl
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+%     \named,
+%     \@@_grab_prefix:nN,
+%     \@@_start:nNp,
+%   }
+%   Main macro. Starts scanning ahead for prefixes and the definition
+%   command. Once finished the scanning of prefixes, call
+%   \cs{@@_process_begin:nnNn} which will do the heavy lifting.
+%    \begin{macrocode}
+\cs_new_protected:Npn \named { \@@_grab_prefix:nN {} }
+\cs_new:Npn \@@_grab_prefix:nN #1 #2
+  {
+    \@@_if_prefix:NTF #2
+      { \@@_grab_prefix:nN }
+      { \@@_start:nNp }
+    { #1#2 }
+  }
+\cs_new:Npn \@@_start:nNp #1 #2 #3 #
+  { \@@_process_begin:nnNn {#1} #2 {#3} }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_if_prefix:N}
+%   Checks against a list of valid prefixes and returns |true| or
+%   |false| accordingly.
+%    \begin{macrocode}
+\prg_new_conditional:Npnn \@@_if_prefix:N #1 { TF }
+  {
+    \if_meaning:w \protected  #1 \prg_return_true: \else:
+      \if_meaning:w \global   #1 \prg_return_true: \else:
+        \if_meaning:w \outer  #1 \prg_return_true: \else:
+          \if_meaning:w \long #1 \prg_return_true: \else:
+            \prg_return_false:
+          \fi:
+        \fi:
+      \fi:
+    \fi:
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+%     \@@_process_begin:nnNn,
+%     \@@_define:nnnN,
+%     \@@_process_parameter:Nn,
+%     \@@_parameter_output:n,
+%     \@@_parameter_output:nnw,
+%   }
+%   Here the actual replacement of named parameters by numbered ones
+%   takes place. A group is started to revert the flag and all the
+%   defined temporary macros.
+%
+%   \cs{@@_process_parameter:Nn} \cs{@@_in_parameter:n} starts replacing
+%   a dummy macro in the generic parameter replacement routine by the
+%   macro which counts the parameters and aliases the named parameters
+%   with numbered ones. Finally it starts \cs{@@_replace_parm:nNn},
+%   which scans the \meta{parameter~text} for the named parameters and
+%   replaces them by numbered ones. The second output argument of
+%   \cs{@@_replace_parm:nNn} is a list of definitions which assign a
+%   number to each named parameter so that they can be used in the next
+%   step.
+%
+%   \cs{@@_process_parameter:Nn} \cs{@@_in_replacement:n} then starts by
+%   replacing the same dummy macro by one which will replace the named
+%   parameter by its number. Again \cs{@@_replace_parm:nNn} is started,
+%   and its output is the already-processed part of the
+%   \meta{replacement~text}.
+%
+%   The output of both steps is inserted after \cs{@@_define:nnnN} which
+%   are its two missing arguments in the definition of
+%   \cs{@@_process_begin:nnNn}. After all that is done, all the named
+%   parameters were replaced by numbered ones, so \cs{@@_define:nnnN}
+%   can do its thing.
+%
+%   A final quark is put in the input stream for recovery from errors.
+%   In a successful run this quark is removed by \cs{@@_define:nnnN}.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_process_begin:nnNn #1 #2 #3 #4
+  {
+    \cs_set:Npn \@@_tmp:w {}
+    \group_begin:
+      \tl_set:Nf \l_@@_macro_tl { \cs_to_str:N #2 }
+      \@@_process_parameter:Nn \@@_in_parameter:n {#3}
+      \@@_process_parameter:Nn \@@_in_replacement:n {#4}
+      \@@_define:nnnN {#1} #2
+      \q_stop
+  }
+\cs_new_protected:Npn \@@_define:nnnN #1 #2 #3 #4
+  {
+    \group_end:
+    \use_i_delimit_by_q_stop:nw { #3#4#2{#1} }
+  }
+\cs_new:Npn \@@_process_parameter:Nn #1 #2
+  {
+    \cs_set_eq:NN \@@_handle_parameter:n #1
+    \@@_replace_parm:Nn \@@_parameter_output:n {#2}
+  }
+\cs_new:Npn \@@_parameter_output:n #1
+  { \@@_parameter_output:nnw #1 }
+\cs_new:Npn \@@_parameter_output:nnw #1 #2 #3 \@@_define:nnnN
+  { #2 #3 \@@_define:nnnN {#1} }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+%     \@@_in_parameter:n,
+%     \@@_in_replacement:n,
+%   }
+%   These two functions handle the named parameters when they are found
+%   in the \meta{parameter~text} and \meta{replacement~text},
+%   respectively.
+%
+%   \cs{@@_in_parameter:n} checks if the named parameter already exists
+%   (with \cs{relax} being |true|) and, in such case, throws an error
+%   and aborts the definition. Otherwise the parameter is \cs{let} to
+%   \cs{relax} so that if it is found later an error is issued. Setting
+%   a macro to \cs{relax} is an expandable way to define it (the same is
+%   done in \pkg{l3flag}), and this part of the code has to be
+%   expandable so that \cs{@@_tl_act:NNNnn} works properly. After that
+%   the \cs{flag @@_parm_count} is raised once and its height is used as
+%   the parameter number, which is flushed to the output slot, then the
+%   processing continues.
+%
+%   \cs{@@_in_replacement:n} also checks if the named parameter exists,
+%   however now it will be \emph{not} be \cs{relax}, but a number, so
+%   \cs{cs_if_exist:cTF} can be safely used. If the parameter does not
+%   exist it was never declared in the \meta{parameter~text} (somewhat
+%   like |\def#1{#2}|), then raise an error and abort. Otherwise just
+%   flush |#|\meta{number}.
+%    \begin{macrocode}
+\cs_new:Npn \@@_in_parameter:n #1
+  {
+    \if_cs_exist:w \c_@@_prefix_tl #1 \cs_end:
+      \exp_after:wN \use_i:nn
+    \else:
+      \exp_after:wN \use_ii:nn
+    \fi:
+      {
+        \msg_expandable_error:nnn { namedef } { repeated-parm } {#1}
+        \@@_abort_definition:w
+      }
+      {
+        \exp_after:wN \use_none:n \cs:w \c_@@_prefix_tl #1 \cs_end:
+        \flag_raise:n { @@_parm_count }
+        \exp_args:Nf
+          \@@_delay_name_def:nnw
+            { \flag_height:n { @@_parm_count } }
+            {#1}
+      }
+  }
+\cs_new:Npn \@@_in_replacement:n #1
+  {
+    \cs_if_exist:cTF { \c_@@_prefix_tl #1 }
+      {
+        \exp_args:Nf
+          \@@_delay_name_def:nnw
+            { \use:c { \c_@@_prefix_tl #1 } }
+            { }
+      }
+      {
+        \msg_expandable_error:nnn { namedef } { invalid-parm } {#1}
+        \@@_abort_definition:w
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+%     \@@_replace_parm:Nn,
+%     \@@_normal:nN,
+%     \@@_group:nn,
+%     \@@_groupify:n,
+%     \@@_space:n,
+%     \@@_tl_act:NNNnn,
+%     \@@_delay_name_def:nnw,
+%     \@@_abort_definition:w,
+%     \@@_flush:nw,
+%     \@@_act_add_result:nnnnn,
+%   }
+%   This bit of the code is a shameless copy/misuse of \pkg{l3tl}'s
+%   \cs{__tl_act:NNNnn}. A wrapper macro \cs{@@_replace_parm:Nn} is
+%   defined to expand \cs{@@_tl_act:NNNnn} then pass the result to |#1|.
+%   The difference between \cs{__tl_act:NNNnn} and \cs{@@_tl_act:NNNnn}
+%   is that the latter has two output slots, which are necessary in the
+%   \meta{parameter~text} scanning step, and the actual |#4| in
+%   \cs{__tl_act:NNNnn} is made permanently empty because it isn't used.
+%
+%   Furthermore \cs{@@_group:nn} (actually \cs{@@_groupify:n}, which is
+%   expanded after \cs{@@_replace_parm:Nn} finishes scanning the group)
+%   discards the second output slot of \cs{@@_tl_act:NNNnn}. The
+%   \cs{@@_group:nn} branch will only be used when scanning the
+%   \meta{replacement~text} (the \meta{parameter~text} can't have
+%   begin/end group tokens), at which time this second slot is more of a
+%   nuisance than a resource.
+%    \begin{macrocode}
+\cs_new:Npn \@@_replace_parm:Nn #1 #2
+  {
+    \exp_args:No #1
+      {
+        \exp:w
+        \@@_tl_act:NNNnn
+          \@@_normal:nN
+          \@@_group:nn
+          \@@_space:n
+          { { } { } } {#2}
+      }
+  }
+\cs_new:Npn \@@_normal:nN #1 #2
+  {
+    \token_if_parameter:NTF #2
+      { \@@_grab_parm:w }
+      { \@@_flush:nw {#2} }
+  }
+\cs_new:Npn \@@_group:nn #1 #2
+  {
+    \@@_replace_parm:Nn
+      \@@_groupify:n {#2}
+  }
+\cs_new:Npn \@@_groupify:n #1
+  {
+    \exp_args:No \@@_flush:nw
+      { \exp_after:wN { \use_i:nn #1 } }
+  }
+\cs_new:Npn \@@_space:n #1 { \@@_flush:nw { ~ } }
+%    \end{macrocode}
+%   This bit of the code is defined inside \cs{namedef_tmp:w} because I
+%   don't like \pkg{l3doc} telling me what I should or should not do :)
+%   These parts of the code use internals from \pkg{l3tl} which
+%   shouldn't be used outside of \pkg{l3tl}. To avoid the warnings (and
+%   to say that I know I'm doing wrong) the macros are defined with
+%   placeholders which are then replaced by commands with the correct
+%   prefix.
+%    \begin{macrocode}
+\group_begin:
+\cs_set:Npn \namedef_tmp:w #1 #2 #3 #4
+  {
+    \group_end:
+    \cs_new:Npn \@@_tl_act:NNNnn ##1 ##2 ##3 ##4 ##5
+      {
+        \group_align_safe_begin:
+        #1 ##5 #3 #4
+        {} ##1 ##2 ##3
+        #2
+        {##4}
+      }
+    \cs_new:Npn \@@_delay_name_def:nnw ##1 ##2
+      ##3 #2 ##4
+      {
+        \@@_act_add_result:nnnnn
+          {#### ##1} { \cs_set:cpn { \c_@@_prefix_tl ##2 } {##1} }
+          {##3} ##4
+      }
+    \cs_new:Npn \@@_abort_definition:w
+      ##1 #2 ##2
+      {
+        \@@_act_add_result:nnnnn
+          { } { \group_end: \use_none_delimit_by_q_stop:w }
+          {##1} ##2
+      }
+    \cs_new:Npn \@@_flush:nw ##1
+      ##2 #2 ##3
+      {
+        \@@_act_add_result:nnnnn
+          {##1} { }
+          {##2} ##3
+      }
+    \cs_new:Npn \@@_act_add_result:nnnnn ##1 ##2 ##3 ##4 ##5
+      { ##3 #2 { { ##4 ##1 } { ##5 ##2 } } }
+    \cs_new:Npn \@@_grab_parm:w ##1 ##2 #4
+      {
+        \tl_if_head_is_N_type:nTF {##2}
+          { \@@_grab_parm_aux:NNw }
+          { \@@_grab_parm_noop: }
+        ##1 ##2 #4
+      }
+  }
+%    \end{macrocode}
+%    \begin{macrocode}
+%<@@=tl>
+\namedef_tmp:w
+  \@@_act_loop:w \@@_act_result:n
+  \q_@@_act_mark \q_@@_act_stop
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+%      \@@_grab_parm:w,
+%      \l_@@_begin_name_token,
+%      \l_@@_end_name_token,
+%      \@@_grab_parm_aux:Nw,
+%      \@@_grab_parm_noop:NN,
+%    }
+%   These macros are the final pieces of the parameter replacement
+%   routine. \cs{@@_grab_parm:w} (defined above) checks if the next
+%   token in the stream is a valid |N|-type. If it is, then follow by
+%   checking for the \cs{l_@@_begin_name_token}, otherwise do nothing.
+%   If what follows a parameter token is the \cs{l_@@_begin_name_token}
+%   (initially |[|), then another function is called to grab the named
+%   parameter (delimited by \cs{l_@@_end_name_token}, initially |]|) and
+%   go on with the processing, otherwise return with
+%   \cs{@@_grab_parm_noop:NN}.
+%   \begin{macrocode}
+%<@@=namedef>
+\cs_new:Npn \@@_grab_parm_aux:NNw #1 #2
+  {
+    \if_charcode:w \exp_not:N \l_@@_begin_name_token \exp_not:N #2
+      \exp_after:wN \@@_grab_parm_aux:Nw
+      \exp_after:wN #1
+    \else:
+      \exp_after:wN \@@_grab_parm_noop:
+      \exp_after:wN #1
+    \fi:
+    #2
+  }
+\cs_new_eq:NN \l_@@_begin_name_token [
+\cs_new_eq:NN \l_@@_end_name_token ]
+\cs_new:Npn \@@_grab_parm_aux:Nw #1 [ #2 ]
+  { \@@_handle_parameter:n {#2} #1 }
+\cs_new:Npn \@@_grab_parm_noop: { \@@_flush:nw { ## } }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+%      \NamedDelim,
+%      \globalNamedDelim,
+%      \@@_named_delim_set:NNnn,
+%      \@@_check_valid_delimiter:n,
+%    }
+%   At this point everything necessary for the working of the \cs{named}
+%   macro, so we can start using it. Now just some syntactic sugar to
+%   allow the modification of the named argument delimiters.
+%
+%   Both \cs{NamedDelim} and \cs{globalNamedDelim} take two arguments,
+%   an initial and final delimiters for the named argument. Both
+%   delimters should be single non-macro tokens. Some of these
+%   restrictions could be lifted, but it's not really necessary because
+%   the choice of delimiter should not influence the working of the
+%   code, only the readability. A code with |\NamedDelim[]| and
+%   |\def\test#[1][#[2]]{[#[1]][#[2]]}| should work without problems;
+%   the only restriction is that \cs{l_@@_end_name_token} (\emph{i.e.,}
+%   the second argument of \cs{NamedDelim}) cannot appear in the
+%   parameter name.
+%    \begin{macrocode}
+\cs_new_protected:Npn \NamedDelim
+  { \@@_named_delim_set:NNnn \cs_set_eq:NN  \cs_set:Npn  }
+\cs_new_protected:Npn \globalNamedDelim
+  { \@@_named_delim_set:NNnn \cs_gset_eq:NN \cs_gset:Npn }
+\named \cs_new_protected:Npn \@@_named_delim_set:NNnn
+  #[let] #[def] #[begin] #[end]
+  {
+    \@@_check_valid_delimiter:n {#[begin]}
+    \@@_check_valid_delimiter:n {#[end]}
+    #[let] \l_@@_begin_name_token #[begin]
+    #[let] \l_@@_end_name_token #[end]
+    #[def] \@@_grab_parm_aux:Nw ##1 #[begin] ##2 #[end]
+      { \@@_handle_parameter:n {##2} ##1 }
+    \use_none:n \q_stop
+  }
+\named \cs_new_protected:Npn \@@_check_valid_delimiter:n #[token]
+  {
+    \tl_if_single_token:nF {#[token]}
+      {
+        \msg_error:nnn { namedef } { multi-token-delim } {#[token]}
+        \use_none_delimit_by_q_stop:w
+      }
+    \token_if_macro:NT #[token]
+      {
+        \exp_args:Nnnf \msg_error:nnn
+          { namedef } { macro-delim } { \cs_to_str:N #[token] }
+        \use_none_delimit_by_q_stop:w
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Messages}
+%
+% Now we define the messages used throughout the package.
+%
+%    \begin{macrocode}
+\msg_new:nnn { namedef } { repeated-parm }
+  {
+    Parameter~\c_hash_str[#1]~duplicated~in~
+    definition~of~\c_backslash_str\l_@@_macro_tl.
+  }
+\msg_new:nnn { namedef } { invalid-parm }
+  {
+    Illegal~parameter~\c_hash_str[#1]~in~
+    definition~of~\c_backslash_str\l_@@_macro_tl.
+  }
+\msg_new:nnn { namedef } { multi-token-delim }
+  {
+    Invalid~\token_to_str:N\named\ parameter~delimiter~`#1'.~
+    Delimiters~for~named~parameters~must~be~single~tokens.
+  }
+\msg_new:nnn { namedef } { macro-delim }
+  {
+    Invalid~\token_to_str:N\named\ parameter~delimiter~`
+    \c_backslash_str #1'.~Delimiters~for~named~parameters~
+    can't~be~macros.
+  }
+%    \end{macrocode}
+%
+% Now execute the end package hook (in \LaTeX{} it is
+% \cs{prg_do_nothing:}, but in plain \TeX{} it does \cs{ExplSyntaxOff}).
+%
+%    \begin{macrocode}
+\@@_end_package_hook:
+%    \end{macrocode}
+%
+% \iffalse
+%</package>
+% \fi
+%
+% \end{implementation}
+%
+%^^A \par\CodedocExplainEXP
+%^^A \par\CodedocExplainREXP
+%^^A \par\CodedocExplainTF
+%
+%^^A \PrintIndex
+%
+\endinput
