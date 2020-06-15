@@ -1,0 +1,105 @@
+% Test weird catcodes as delimiters
+\RequirePackage[enable-debug]{expl3}
+\ExplSyntaxOn
+\debug_on:n { check-declarations , deprecation }
+\ExplSyntaxOff
+
+\input regression-test.tex
+\RequirePackage{namedef}
+
+\def\mshow#1{\TYPE{> \string#1=\meaning#1}}
+
+\START
+
+
+\catcode`\|=3
+\TEST { math shift (3) }
+  {
+    \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
+  }
+
+\catcode`\|=4
+\TEST { alignment tab (4) }
+  {
+    \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
+  }
+
+% \catcode`\|=6
+% \TEST { macro parameter (6) }
+%   {
+%     \NamedDelim{|}{|}
+%           \def\hello#1{Hello #1!}
+%     \mshow\hello
+%     \named\def\hello#|who|{Hello #|who|!}
+%     \mshow\hello
+%   }
+
+\catcode`\|=7
+\TEST { superscript (7) }
+  {
+    \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
+  }
+
+\catcode`\|=8
+\TEST { subscript (8) }
+  {
+    \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
+  }
+
+% \catcode`\|=10
+% \TEST { blank space (10) }
+%   {
+%     \NamedDelim{|}{|}
+%           \def\hello#1{Hello #1!}
+%     \mshow\hello
+%     \named\def\hello#|who|{Hello #|who|!}
+%     \mshow\hello
+%   }
+
+\catcode`\|=11
+\TEST { letter (11) }
+  {
+    \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
+  }
+
+\catcode`\|=12
+\TEST { other (12) }
+  {
+    \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
+  }
+
+% \catcode`\|=13
+% \TEST { active (13) }
+%   {
+%     \NamedDelim{|}{|}
+%           \def\hello#1{Hello #1!}
+%     \mshow\hello
+%     \named\def\hello#|who|{Hello #|who|!}
+%     \mshow\hello
+%   }
+
+\END
