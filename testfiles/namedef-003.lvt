@@ -15,9 +15,10 @@
 % \NamedDelim{ }{ }
 % \named\def\test# who {# who }\show\test
 
-% Shouldn't be allowed:
-% \NamedDelim \bgroup \egroup
-% \named\def\test#{who}{#{who}}\show\test
+\TEST { begin/end-group (1/2) }
+  {
+    \NamedDelim{\bgroup}{\egroup}
+  }
 
 \catcode`\|=3
 \TEST { math shift (3) }

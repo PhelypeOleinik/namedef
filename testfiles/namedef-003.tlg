@@ -1,37 +1,50 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
 ============================================================
-TEST 1:  math shift (3) 
+TEST 1:  begin/end-group (1) 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter `\bgroup'.
+(namedef)                Delimiters for named parameters can't be
+(namedef)                begin-/end-group character tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 2:  math shift (3) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 2:  alignment tab (4) 
+TEST 3:  alignment tab (4) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 3:  superscript (7) 
+TEST 4:  superscript (7) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 4:  subscript (8) 
+TEST 5:  subscript (8) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 5:  letter (11) 
+TEST 6:  letter (11) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 6:  other (12) 
+TEST 7:  other (12) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!

@@ -894,6 +894,14 @@
           { namedef } { macro-delim } { \cs_to_str:N #[token] }
         \use_none_delimit_by_q_stop:w
       }
+    \bool_lazy_or:nnT
+        { \token_if_eq_meaning_p:NN #[token] \c_group_begin_token }
+        { \token_if_eq_meaning_p:NN #[token] \c_group_end_token }
+      {
+        \exp_args:Nnnf \msg_error:nnn
+          { namedef } { group-delim } { \cs_to_str:N #[token] }
+        \use_none_delimit_by_q_stop:w
+      }
   }
 %    \end{macrocode}
 % \end{macro}
@@ -923,6 +931,12 @@
     Invalid~\token_to_str:N\named\ parameter~delimiter~`
     \c_backslash_str #1'.~Delimiters~for~named~parameters~
     can't~be~macros.
+  }
+\msg_new:nnn { namedef } { group-delim }
+  {
+    Invalid~\token_to_str:N\named\ parameter~delimiter~`
+    \c_backslash_str #1'.~Delimiters~for~named~parameters~
+    can't~be~begin-/end-group~character~tokens.
   }
 %    \end{macrocode}
 %
