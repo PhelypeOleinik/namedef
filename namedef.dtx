@@ -23,26 +23,6 @@
 \usepackage{bookmark}
 \usepackage{xcolor}
 
-\makeatletter
-% Redefine LaTeX internals using \named
-\let\l@ngrel@x\relax
-
-% Could work:
-% \NamedDelim{ }{ }
-% \named\def\test# who {# who }\show\test
-
-% Shouldn't be allowed:
-% \NamedDelim \bgroup \egroup
-% \named\def\test#{who}{#{who}}\show\test
-
-% Should work?
-% \catcode`X=13
-% \NamedDelim X X
-% \named\def\test#XwhoX{#XwhoX}\show\test
-
-% Then load a package which does a lot of \newcommands to check
-\usepackage{blindtext}
-
 \begingroup
   \lccode`~=`\%
   \lowercase{\endgroup
