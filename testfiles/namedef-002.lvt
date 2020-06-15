@@ -1,0 +1,101 @@
+% Tests from the documentation
+\RequirePackage[enable-debug]{expl3}
+\ExplSyntaxOn
+\debug_on:n { check-declarations , deprecation }
+\ExplSyntaxOff
+
+\input regression-test.tex
+\RequirePackage{namedef}
+
+\def\mshow#1{\TYPE{> \string#1=\meaning#1}}
+
+\START
+
+\TEST { Basics }
+  {
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#[who]{Hello #[who]!}
+    \mshow\hello
+  }
+
+\TEST { Prefixes }
+  {
+          \protected\long\edef\hello#1{Hello #1!}
+    \mshow\hello
+    \named\protected\long\edef\hello#[who]{Hello #[who]!}
+    \mshow\hello
+  }
+
+\TEST { Wrong Prefixes (only the first line has \protected) }
+  {
+    \protected      \long\edef\hello#1{Hello #1!}
+    \mshow\hello
+    \protected\named\long\edef\hello#[who]{Hello #[who]!}
+    \mshow\hello
+  }
+
+\TEST { Argument delimited by [ and ] }
+  {
+          \def\hello[#1]{Hello #1!}
+    \mshow\hello
+    \named\def\hello[#[who]]{Hello #[who]!}
+    \mshow\hello
+  }
+
+\TEST { Argument delimited by [ and ] }
+  {
+    \NamedDelim{|}{|}
+          \def\hello[#1]{Hello #1!}
+    \mshow\hello
+    \named\def\hello[#|who|]{Hello #|who|!}
+    \mshow\hello
+  }
+
+\TEST { More arguments }
+  {
+          \def\cfbox #1 to #2#3{\fbox{\hbox to #2{\color{#1}#3}}}
+    \mshow\cfbox
+    \named\def\cfbox #[color] to #[width]#[content]{%
+            \fbox{\hbox to #[width]{\color{#[color]}#[content]}}}
+    \mshow\cfbox
+  }
+
+\TEST { Weird arguments }
+  {
+          \def\cbox #1 to #2#{\hbox to #2\bgroup\color{#1}\let\next= }
+    \mshow\cbox
+    \named\def\cbox #[color] to #[width]#{%
+            \hbox to #[width]\bgroup\color{#[color]}\let\next= }
+    \mshow\cbox
+  }
+
+\TEST { \edef workaround 2.1.1 }
+  {
+          \edef\test{\string#[arg]}
+    \mshow\test
+    \NamedDelim ||
+    \named\edef\test{\string#[arg]}
+    \NamedDelim []
+    \mshow\test
+  }
+
+\TEST { \edef workaround 2.1.2 }
+  {
+                           \iffalse{\fi % Need to trick \TEST too :|
+          \edef\test#1{\string}#1}
+    \mshow\test
+    \named\edef\test#[arg]{\iffalse{\fi\string}#[arg]}
+    \mshow\test
+  }
+
+\TEST { \edef workaround 2.1.2,5 }
+  {
+          \edef\test#1{\string{#1}       \iffalse}\fi % Need to trick \TEST too :|
+    \mshow\test
+    \named\edef\test#[arg]{\string{#[arg]\iffalse}\fi}
+    \mshow\test
+    
+  }
+
+\END
