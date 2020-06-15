@@ -40,63 +40,6 @@
 % \NamedDelim X X
 % \named\def\test#XwhoX{#XwhoX}\show\test
 
-\NamedDelim[]
-
-\named\def\newcommand{\@star@or@long\new@command}
-\named\def\@star@or@long#[next]{%
-  \@ifstar
-   {\let\l@ngrel@x\relax#[next]}%
-   {\let\l@ngrel@x\long#[next]}}
-\named\def\new@command#[macro]{%
-  \@testopt{\@newcommand#[macro]}0}
-\named\def\@newcommand#[macro][#[narg]]{%
-  \kernel@ifnextchar [{\@xargdef#[macro][#[narg]]}%
-                {\@argdef#[macro][#[narg]]}}
-\named\long\def\@argdef#[macro][#[narg]]#[defn]{%
-   \@ifdefinable #[macro]{\@yargdef#[macro]\@ne{#[narg]}{#[defn]}}}
-\named\long\def\@xargdef#[macro][#[narg]][#[optarg]]#[defn]{%
-  \@ifdefinable#[macro]{%
-     \expandafter\def\expandafter#[macro]\expandafter{%
-          \expandafter
-          \@protected@testopt
-          \expandafter
-          #[macro]%
-          \csname\string#[macro]\endcsname
-          {#[optarg]}}%
-       \expandafter\@yargdef
-          \csname\string#[macro]\endcsname
-           \tw@
-           {#[narg]}%
-           {#[defn]}}}
-\NamedDelim $ $
-\named\long\def\@testopt#$macro$#$default${%
-  \kernel@ifnextchar[{#$macro$}{#$macro$[{#$default$}]}}
-\NamedDelim XY
-\named\def\@protected@testopt#XmacroY{%
-  \ifx\protect\@typeset@protect
-    \expandafter\@testopt
-  \else
-    \@x@protect#XmacroY%
-  \fi}
-\NamedDelim ()
-\named\long \def \@eyargdef #(macro)#(hasopt)#(narg){%
-  \ifx#(hasopt)\tw@
-    \def\reserved@b##11{[####1]}%
-  \else
-    \let\reserved@b\@gobble
-  \fi
-  \expandafter
-    \@yargd@f \expandafter{\number #(narg)}#(macro)%
-}
-\NamedDelim ||
-\named\long \def \@yargd@f#|narg|#|macro|{%
-  \def \reserved@a ##1#|narg|##2##{%
-    \expandafter\def\expandafter#|macro|\reserved@b ##1#|narg|%
-    }%
-  \l@ngrel@x \reserved@a 0##1##2##3##4##5##6##7##8##9###|narg|%
-}
-\NamedDelim []
-\makeatother
 % Then load a package which does a lot of \newcommands to check
 \usepackage{blindtext}
 
