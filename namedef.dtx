@@ -183,8 +183,9 @@
 %   These macros change the delimiter of the named parameters from the
 %   default |#[|\meta{name}|]| to
 %   |#|\meta{begin-token}\meta{name}\meta{end-token}. Both delimiters
-%   must be one single non-macro token. Characters with \emph{weird}
-%   catcodes shouldn't be used as well ($0,1,2,5,6,9,10,13,14,15$).
+%   must be one single non-macro token.  Valid delimiters are character
+%   tokens with catcode $3$, $4$, $7$, $8$, $11$, or $12$
+%   (see section~\ref{sec:delimiters}).
 %
 %   \cs{globalNamedDelim} is the same as \cs{NamedDelim} except that the
 %   effect of the former has global scope, while the latter is local to
@@ -354,6 +355,38 @@
 % \end{Verbatim}
 % This will ensure that \cs{named} will see the |}| it needs to grab the
 % definition correctly and will disappear once the definition is done.
+%
+% \subsection{Invalid delimiters}
+% \label{sec:delimiters}
+%
+% The delimiters that can be used should be character tokens with
+% catcode $3$, $4$, $7$, $8$, $11$, or $12$.  Characters with catcode
+% $0$, $5$, $9$, $14$, and $15$ don't produce tokens to start with, so
+% they can't possibly be used.  The remaining category codes are
+% currently disallowed in the code because they make the input ambiguous
+% or because they make the implementation more complex with no real
+% advantage.
+%
+% Catcodes $1$ and $2$ (begin-/end-group) cannot be used because they
+% become indistinguishable from the braces that delimit the
+% \meta{parameter~text} of the definition, so the input is ambiguous.
+%
+% Catcode $6$ (macro parameter) cannot be used because it gets hard to
+% distinguish a named parameter from some text surrounded by parameter
+% tokens. For example in: |\named\edef\foo#name#{\string#then#name#}|,
+% \pkg{namedef} would raise an error on |#then#| (unknown parameter)
+% without knowing that the first |#|$_{6}$ becomes |#|$_{12}$ and the
+% actual parameter is |#name#|\dots Or is it? I'm not entirely convinced
+% of my own argument, so this might be implemented in the future.
+%
+% Catcode $10$ (blank space) is possible but it requires a hanful of
+% extra precautions to avoid losing the space when passing arguments
+% around.  Since it makes for a strange-looking syntax (our eyes are
+% trained to ignore spaces), this is not supported.
+%
+% Catcode $13$ (active) should also be possible, but then the delimiter
+% has to be identified by both character code and meaning.  I will
+% likely implement this in the future.
 %
 % \section{Examples}
 %
