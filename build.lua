@@ -7,7 +7,7 @@ sourcefiles   = { "*.dtx", "*.ins" }
 typesetfiles  = { "*.dtx" }
 
 checkruns     = 1
-typesetruns   = 2
+typesetruns   = 3
 
 checkengines  = { "pdftex" }
 

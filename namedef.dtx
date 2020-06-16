@@ -134,7 +134,7 @@
 %
 % \begin{function}{\named}
 %   \begin{syntax}
-%     \cs{named}\meta{other~prefixes}\meta{\cs{}(e,g,x)def}^^A
+%     \cs{named}\meta{other~prefixes}\meta{\cs[no-index]{(e,g,x)def}}^^A
 %\meta{parameter text}\marg{replacement text}
 %   \end{syntax}
 %   The \cs{named} macro will grab the \meta{other~prefixes}, the
@@ -544,8 +544,9 @@
 %    \end{macrocode}
 %
 % \begin{macro}{
-%     flag @@_parm_count,
+%     \flag @@_parm_count,
 %     \c_@@_prefix_tl,
+%     \l_@@_macro_tl
 %   }
 %   A flag (mis)used as a counter to keep track of the parameter number
 %   and a prefix to use as name space for temporary macros.
@@ -1016,6 +1017,6 @@
 %^^A \par\CodedocExplainREXP
 %^^A \par\CodedocExplainTF
 %
-%^^A \PrintIndex
+% \PrintIndex
 %
 \endinput
