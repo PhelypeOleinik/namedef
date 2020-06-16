@@ -873,8 +873,8 @@
 \named \cs_new_protected:Npn \@@_named_delim_set:NNnn
   #[let] #[def] #[begin] #[end]
   {
-    \@@_check_valid_delimiter:n {#[begin]}
-    \@@_check_valid_delimiter:n {#[end]}
+    \tl_trim_spaces_apply:nN {#[begin]} \@@_check_valid_delimiter:n
+    \tl_trim_spaces_apply:nN {#[end]}   \@@_check_valid_delimiter:n
     #[let] \l_@@_begin_name_token #[begin]
     #[let] \l_@@_end_name_token #[end]
     #[def] \@@_grab_parm_aux:Nw ##1 #[begin] ##2 #[end]
@@ -883,20 +883,36 @@
   }
 \named \cs_new_protected:Npn \@@_check_valid_delimiter:n #[token]
   {
+    \tl_if_empty:nT {#[token]}
+      {
+        \msg_error:nn { namedef } { blank-delim }
+        \use_none_delimit_by_q_stop:w
+      }
     \tl_if_single_token:nF {#[token]}
       {
         \msg_error:nnn { namedef } { multi-token-delim } {#[token]}
         \use_none_delimit_by_q_stop:w
       }
+    \token_if_active:NT #[token]
+      {
+        \msg_error:nnn { namedef } { macro-delim } {#[token]}
+        \use_none_delimit_by_q_stop:w
+      }
     \token_if_macro:NT #[token]
       {
         \msg_error:nnx { namedef } { macro-delim }
+          { \c_backslash_str \cs_to_str:N #[token] }
+        \use_none_delimit_by_q_stop:w
+      }
+    \token_if_parameter:NT #[token]
+      {
+        \msg_error:nnx { namedef } { param-delim }
           { \cs_to_str:N #[token] }
         \use_none_delimit_by_q_stop:w
       }
     \bool_lazy_or:nnT
-        { \token_if_eq_meaning_p:NN #[token] \c_group_begin_token }
-        { \token_if_eq_meaning_p:NN #[token] \c_group_end_token }
+        { \token_if_group_begin_p:N #[token] }
+        { \token_if_group_end_p:N #[token] }
       {
         \msg_error:nnx { namedef } { group-delim }
           { \cs_to_str:N #[token] }
@@ -923,22 +939,30 @@
   }
 \msg_new:nnn { namedef } { multi-token-delim }
   {
-    Invalid~\iow_char:N\\named~parameter~delimiter~
-    `#1'.~
+    Invalid~\iow_char:N\\named~parameter~delimiter~`#1'.~
     Delimiters~for~named~parameters~must~be~single~tokens.
   }
 \msg_new:nnn { namedef } { macro-delim }
   {
-    Invalid~\iow_char:N\\named~parameter~delimiter~
-    `\iow_char:N\\#1'.~
-    Delimiters~for~named~parameters~can't~be~macros.
+    Invalid~\iow_char:N\\named~parameter~delimiter~`#1'.~
+    Delimiters~for~named~parameters~can't~be~macros~nor~active~
+    characters.
   }
 \msg_new:nnn { namedef } { group-delim }
   {
-    Invalid~\iow_char:N\\named~parameter~delimiter~
-    `\iow_char:N\\#1'.~
+    Invalid~\iow_char:N\\named~parameter~delimiter~`\iow_char:N\\#1'.~
     Delimiters~for~named~parameters~can't~be~
       begin-/end-group~character~tokens.
+  }
+\msg_new:nnn { namedef } { blank-delim }
+  {
+    Invalid~\iow_char:N\\named~parameter~delimiter.~
+    Delimiters~for~named~parameters~can't~be~empty~nor~space~tokens.
+  }
+\msg_new:nnn { namedef } { param-delim }
+  {
+    Invalid~\iow_char:N\\named~parameter~delimiter.~
+    Delimiters~for~named~parameters~can't~be~parameter~tokens.
   }
 %    \end{macrocode}
 %
