@@ -89,8 +89,8 @@ TEST 10:  other (12)
 TEST 11:  active (13) 
 ============================================================
 ! Package namedef Error: Invalid \named parameter delimiter `|'. Delimiters
-(namedef)                for named parameters can't be macros nor active
-(namedef)                characters.
+(namedef)                for named parameters can't be control sequence nor
+(namedef)                active characters.
 Type <return> to continue.
  ...                                              
 l. ...  }

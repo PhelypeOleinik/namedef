@@ -932,7 +932,7 @@
         \msg_error:nnn { namedef } { macro-delim } {#[token]}
         \use_none_delimit_by_q_stop:w
       }
-    \token_if_macro:NT #[token]
+    \token_if_cs:NT #[token]
       {
         \msg_error:nnx { namedef } { macro-delim }
           { \c_backslash_str \cs_to_str:N #[token] }
@@ -979,8 +979,8 @@
 \msg_new:nnn { namedef } { macro-delim }
   {
     Invalid~\iow_char:N\\named~parameter~delimiter~`#1'.~
-    Delimiters~for~named~parameters~can't~be~macros~nor~active~
-    characters.
+    Delimiters~for~named~parameters~can't~be~control~sequence~nor~
+    active~characters.
   }
 \msg_new:nnn { namedef } { group-delim }
   {

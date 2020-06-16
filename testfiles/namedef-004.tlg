@@ -41,8 +41,35 @@ If that doesn't work, type X <return> to quit.
 TEST 4:  macro-delim 
 ============================================================
 ! Package namedef Error: Invalid \named parameter delimiter `\TEST'.
-(namedef)                Delimiters for named parameters can't be macros nor
-(namedef)                active characters.
+(namedef)                Delimiters for named parameters can't be control
+(namedef)                sequence nor active characters.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package namedef Error: Invalid \named parameter delimiter `\expanded'.
+(namedef)                Delimiters for named parameters can't be control
+(namedef)                sequence nor active characters.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package namedef Error: Invalid \named parameter delimiter `\relax'.
+(namedef)                Delimiters for named parameters can't be control
+(namedef)                sequence nor active characters.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package namedef Error: Invalid \named parameter delimiter `\UNDEFINED'.
+(namedef)                Delimiters for named parameters can't be control
+(namedef)                sequence nor active characters.
 Type <return> to continue.
  ...                                              
 l. ...  }
