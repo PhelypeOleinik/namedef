@@ -1,7 +1,7 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
 ============================================================
-TEST 1:  begin/end-group (1) 
+TEST 1:  begin/end-group (1/2) 
 ============================================================
 ! Package namedef Error: Invalid \named parameter delimiter `\bgroup'.
 (namedef)                Delimiters for named parameters can't be
@@ -26,26 +26,75 @@ TEST 3:  alignment tab (4)
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 4:  superscript (7) 
+TEST 4:  macro parameter (6) 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter. Delimiters for
+(namedef)                named parameters can't be parameter tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 5:  superscript (7) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 5:  subscript (8) 
+TEST 6:  subscript (8) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 6:  letter (11) 
+TEST 7:  ignore (9) 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter. Delimiters for
+(namedef)                named parameters can't be empty nor space tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 8:  blank space (10) 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter. Delimiters for
+(namedef)                named parameters can't be empty nor space tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 9:  letter (11) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
 ============================================================
 ============================================================
-TEST 7:  other (12) 
+TEST 10:  other (12) 
 ============================================================
 > \hello=macro:#1->Hello #1!
 > \hello=macro:#1->Hello #1!
+============================================================
+============================================================
+TEST 11:  active (13) 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter `|'. Delimiters
+(namedef)                for named parameters can't be macros nor active
+(namedef)                characters.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
 ============================================================

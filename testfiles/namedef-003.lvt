@@ -11,10 +11,6 @@
 
 \START
 
-% Could work:
-% \NamedDelim{ }{ }
-% \named\def\test# who {# who }\show\test
-
 \TEST { begin/end-group (1/2) }
   {
     \NamedDelim{\bgroup}{\egroup}
@@ -40,15 +36,11 @@
     \mshow\hello
   }
 
-% \catcode`\|=6
-% \TEST { macro parameter (6) }
-%   {
-%     \NamedDelim{|}{|}
-%           \def\hello#1{Hello #1!}
-%     \mshow\hello
-%     \named\def\hello#|who|{Hello #|who|!}
-%     \mshow\hello
-%   }
+\catcode`\|=6
+\TEST { macro parameter (6) }
+  {
+    \NamedDelim{|}{|}
+  }
 
 \catcode`\|=7
 \TEST { superscript (7) }
@@ -70,15 +62,17 @@
     \mshow\hello
   }
 
-% \catcode`\|=10
-% \TEST { blank space (10) }
-%   {
-%     \NamedDelim{|}{|}
-%           \def\hello#1{Hello #1!}
-%     \mshow\hello
-%     \named\def\hello#|who|{Hello #|who|!}
-%     \mshow\hello
-%   }
+\catcode`\|=9
+\TEST { ignore (9) }
+  {
+    \NamedDelim{|}{|}
+  }
+
+\catcode`\|=10
+\TEST { blank space (10) }
+  {
+    \NamedDelim{|}{|}
+  }
 
 \catcode`\|=11
 \TEST { letter (11) }
@@ -100,14 +94,11 @@
     \mshow\hello
   }
 
-% \catcode`\|=13
-% \TEST { active (13) }
-%   {
-%     \NamedDelim{|}{|}
-%           \def\hello#1{Hello #1!}
-%     \mshow\hello
-%     \named\def\hello#|who|{Hello #|who|!}
-%     \mshow\hello
-%   }
+\catcode`\|=13
+\def|{boo}
+\TEST { active (13) }
+  {
+    \NamedDelim{|}{|}
+  }
 
 \END
