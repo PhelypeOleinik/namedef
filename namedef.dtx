@@ -683,7 +683,7 @@
             { }
       }
       {
-        \msg_expandable_error:nnn { namedef } { invalid-parm } {#1}
+        \msg_expandable_error:nnn { namedef } { unknown-parm } {#1}
         \@@_abort_definition:w
       }
   }
@@ -916,9 +916,9 @@
     Parameter~\iow_char:N\#[#1]~duplicated~in~
     definition~of~\iow_char:N\\\l_@@_macro_tl.
   }
-\msg_new:nnn { namedef } { invalid-parm }
+\msg_new:nnn { namedef } { unknown-parm }
   {
-    Illegal~parameter~\iow_char:N\#[#1]~in~
+    Unknown~parameter~\iow_char:N\#[#1]~in~
     definition~of~\iow_char:N\\\l_@@_macro_tl.
   }
 \msg_new:nnn { namedef } { multi-token-delim }
