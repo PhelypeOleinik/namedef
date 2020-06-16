@@ -1,0 +1,89 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1:  repeated-parm 
+============================================================
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[parm] duplicated in definition of...
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+============================================================
+============================================================
+TEST 2:  unknown-parm 
+============================================================
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[what] in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+============================================================
+============================================================
+TEST 3:  multi-token-delim 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter `ab'. Delimiters
+(namedef)                for named parameters must be single tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 4:  macro-delim 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter `\TEST'.
+(namedef)                Delimiters for named parameters can't be macros nor
+(namedef)                active characters.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 5:  group-delim 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter `\bgroup'.
+(namedef)                Delimiters for named parameters can't be
+(namedef)                begin-/end-group character tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 6:  blank-delim 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter. Delimiters for
+(namedef)                named parameters can't be empty nor space tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 7:  param-delim 
+============================================================
+! Package namedef Error: Invalid \named parameter delimiter. Delimiters for
+(namedef)                named parameters can't be parameter tokens.
+Type <return> to continue.
+ ...                                              
+l. ...  }
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================

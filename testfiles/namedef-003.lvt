@@ -1,4 +1,4 @@
-% Test weird catcodes as delimiters
+% Test different catcodes as delimiters
 \RequirePackage[enable-debug]{expl3}
 \ExplSyntaxOn
 \debug_on:n { check-declarations , deprecation }

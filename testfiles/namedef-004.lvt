@@ -1,0 +1,44 @@
+% Test errors
+\RequirePackage[enable-debug]{expl3}
+\ExplSyntaxOn
+\debug_on:n { check-declarations , deprecation }
+\ExplSyntaxOff
+
+\input regression-test.tex
+\RequirePackage{namedef}
+
+\START
+
+\TEST { repeated-parm }
+  {
+    \named\def\foo#[parm]#[parm]{#[parm]}
+  }
+\TEST { unknown-parm }
+  {
+    \named\def\foo#[parm]{#[what]}
+  }
+\TEST { multi-token-delim }
+  {
+    \NamedDelim{ab}{]}
+  }
+\TEST { macro-delim }
+  {
+    \NamedDelim{\TEST}{]}
+    \NamedDelim{\expanded}{]}
+    \NamedDelim{\relax}{]}
+    \NamedDelim{\UNDEFINED}{]}
+  }
+\TEST { group-delim }
+  {
+    \NamedDelim{\bgroup}{]}
+  }
+\TEST { blank-delim }
+  {
+    \NamedDelim{ }{]}
+  }
+\TEST { param-delim }
+  {
+    \NamedDelim{#}{]}
+  }
+
+\END
