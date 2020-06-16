@@ -566,7 +566,7 @@
 %   command. Once finished the scanning of prefixes, call
 %   \cs{@@_process_begin:nnNn} which will do the heavy lifting.
 %    \begin{macrocode}
-\cs_new_protected:Npn \named { \@@_grab_prefix:nN {} }
+\cs_new_protected:Npn \named { \@@_grab_prefix:nN { } }
 \cs_new:Npn \@@_grab_prefix:nN #1 #2
   {
     \@@_if_prefix:NTF #2
@@ -636,7 +636,7 @@
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_process_begin:nnNn #1 #2 #3 #4
   {
-    \cs_set:Npn \@@_tmp:w {}
+    \cs_set:Npn \@@_tmp:w { }
     \group_begin:
       \tl_set:Nf \l_@@_macro_tl { \cs_to_str:N #2 }
       \@@_process_parameter:Nn \@@_in_parameter:n {#3}
@@ -652,7 +652,7 @@
 \cs_new:Npn \@@_process_parameter:Nn #1 #2
   {
     \cs_set_eq:NN \@@_handle_parameter:n #1
-    \@@_replace_parm:Nn \@@_parameter_output:n {#2}
+    \@@_replace_parm:Nn \@@_parameter_output:nnw {#2}
   }
 \cs_new:Npn \@@_parameter_output:n #1
   { \@@_parameter_output:nnw #1 }
@@ -726,7 +726,6 @@
 %
 % \begin{macro}{
 %     \@@_replace_parm:Nn,
-%     \@@_normal:nN,
 %     \@@_group:nn,
 %     \@@_groupify:n,
 %     \@@_space:n,
@@ -754,33 +753,48 @@
 %    \begin{macrocode}
 \cs_new:Npn \@@_replace_parm:Nn #1 #2
   {
-    \exp_args:No #1
+    \exp_after:wN #1
+      \exp:w
+      \@@_replace_loop:w #2
+        \q_@@_mark \q_@@_stop { } { }
+  }
+\cs_new:Npn \@@_replace_loop:w #1 \q_@@_stop
+  {
+    \tl_if_head_is_N_type:nTF {#1}
+      { \@@_replace_normal:N }
       {
-        \exp:w
-        \@@_tl_act:NNNnn
-          \@@_normal:nN
-          \@@_group:nn
-          \@@_space:n
-          { { } { } } {#2}
+        \tl_if_head_is_group:nTF {#1}
+          { \@@_replace_group:n }
+          { \@@_replace_space:w }
+      }
+    #1 \q_@@_stop
+  }
+\cs_new:Npn \@@_replace_normal:N #1
+  {
+    \token_if_eq_meaning:NNTF \q_@@_mark #1
+      { \@@_replace_end:wnn }
+      {
+        \token_if_parameter:NTF #1
+          { \@@_grab_parm:Nw }
+          { \@@_flush:nw }
+            {#1}
       }
   }
-\cs_new:Npn \@@_normal:nN #1 #2
-  {
-    \token_if_parameter:NTF #2
-      { \@@_grab_parm:w }
-      { \@@_flush:nw {#2} }
-  }
-\cs_new:Npn \@@_group:nn #1 #2
+\cs_new:Npn \@@_replace_group:n #1
   {
     \@@_replace_parm:Nn
-      \@@_groupify:n {#2}
+      \@@_flush_group:nnw {#1}
   }
-\cs_new:Npn \@@_groupify:n #1
-  {
-    \exp_args:No \@@_flush:nw
-      { \exp_after:wN { \use_i:nn #1 } }
-  }
-\cs_new:Npn \@@_space:n #1 { \@@_flush:nw { ~ } }
+\exp_last_unbraced:NNo
+\cs_new:Npn \@@_replace_space:w \c_space_tl
+  { \@@_flush:nw { ~ } }
+\cs_new:Npn \@@_replace_end:wnn \q_@@_stop #1 #2
+  { \exp_end: {#1} {#2} }
+\cs_new:Npn \@@_flush:nw #1
+  #2 \q_@@_stop #3 #4
+  { \@@_replace_loop:w #2 \q_@@_stop { #3 #1 } {#4} }
+\cs_new:Npn \@@_flush_group:nnw #1 #2
+  { \@@_flush:nw { {#1} } }
 %    \end{macrocode}
 %   This bit of the code is defined inside \cs{namedef_tmp:w} because I
 %   don't like \pkg{l3doc} telling me what I should or should not do :)
@@ -790,92 +804,64 @@
 %   placeholders which are then replaced by commands with the correct
 %   prefix.
 %    \begin{macrocode}
-\group_begin:
-\cs_set:Npn \namedef_tmp:w #1 #2 #3 #4
+\quark_new:N \q_@@_mark
+\quark_new:N \q_@@_stop
+\cs_new:Npn \@@_delay_name_def:nnw #1 #2 #3
+  #4 \q_@@_stop #5 #6
   {
-    \group_end:
-    \cs_new:Npn \@@_tl_act:NNNnn ##1 ##2 ##3 ##4 ##5
-      {
-        \group_align_safe_begin:
-        #1 ##5 #3 #4
-        {} ##1 ##2 ##3
-        #2
-        {##4}
-      }
-    \cs_new:Npn \@@_delay_name_def:nnw ##1 ##2
-      ##3 #2 ##4
-      {
-        \@@_act_add_result:nnnnn
-          {#### ##1} { \cs_set:cpn { \c_@@_prefix_tl ##2 } {##1} }
-          {##3} ##4
-      }
-    \cs_new:Npn \@@_abort_definition:w
-      ##1 #2 ##2
-      {
-        \@@_act_add_result:nnnnn
-          { } { \group_end: \use_none_delimit_by_q_stop:w }
-          {##1} ##2
-      }
-    \cs_new:Npn \@@_flush:nw ##1
-      ##2 #2 ##3
-      {
-        \@@_act_add_result:nnnnn
-          {##1} { }
-          {##2} ##3
-      }
-    \cs_new:Npn \@@_act_add_result:nnnnn ##1 ##2 ##3 ##4 ##5
-      { ##3 #2 { { ##4 ##1 } { ##5 ##2 } } }
-    \cs_new:Npn \@@_grab_parm:w ##1 ##2 #4
-      {
-        \tl_if_head_is_N_type:nTF {##2}
-          { \@@_grab_parm_aux:NNw }
-          { \@@_grab_parm_noop: }
-        ##1 ##2 #4
-      }
+    \@@_replace_loop:w #4 \q_@@_stop
+      { #5 #3#1 } { #6 \cs_set:cpn { \c_@@_prefix_tl #2 } {#1} }
   }
-%    \end{macrocode}
-%    \begin{macrocode}
-%<@@=tl>
-\namedef_tmp:w
-  \@@_act_loop:w \@@_act_result:n
-  \q_@@_act_mark \q_@@_act_stop
+\cs_new:Npn \@@_abort_definition:w
+  #1 \q_@@_stop #2 #3
+  {
+    \@@_replace_loop:w #1 \q_@@_stop
+      {#2} { #3 \group_end: \use_none_delimit_by_q_stop:w }
+  }
+\cs_new:Npn \@@_grab_parm:Nw #1 #2 \q_@@_stop
+  {
+    \tl_if_head_is_N_type:nTF {#2}
+      { \@@_grab_parm_aux:NNw }
+      { \@@_grab_parm_noop: }
+    #1 #2 \q_@@_stop
+  }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{
-%      \@@_grab_parm:w,
+%      \@@_grab_parm:Nw,
 %      \l_@@_begin_name_token,
 %      \l_@@_end_name_token,
 %      \@@_grab_parm_aux:Nw,
-%      \@@_grab_parm_noop:NN,
+%      \@@_grab_parm_noop:NNw,
 %    }
 %   These macros are the final pieces of the parameter replacement
-%   routine. \cs{@@_grab_parm:w} (defined above) checks if the next
+%   routine. \cs{@@_grab_parm:Nw} (defined above) checks if the next
 %   token in the stream is a valid |N|-type. If it is, then follow by
 %   checking for the \cs{l_@@_begin_name_token}, otherwise do nothing.
 %   If what follows a parameter token is the \cs{l_@@_begin_name_token}
 %   (initially |[|), then another function is called to grab the named
 %   parameter (delimited by \cs{l_@@_end_name_token}, initially |]|) and
 %   go on with the processing, otherwise return with
-%   \cs{@@_grab_parm_noop:NN}.
+%   \cs{@@_grab_parm_noop:NNw}.
 %   \begin{macrocode}
-%<@@=namedef>
 \cs_new:Npn \@@_grab_parm_aux:NNw #1 #2
   {
-    \if_charcode:w \exp_not:N \l_@@_begin_name_token \exp_not:N #2
-      \exp_after:wN \@@_grab_parm_aux:Nw
-      \exp_after:wN #1
-    \else:
-      \exp_after:wN \@@_grab_parm_noop:
-      \exp_after:wN #1
-    \fi:
-    #2
+    \token_if_eq_charcode:NNTF \l_@@_begin_name_token #2
+      { \@@_grab_parm_aux:Nw }
+      { \@@_grab_parm_noop:NNw }
+        #1 #2
   }
 \cs_new_eq:NN \l_@@_begin_name_token [
 \cs_new_eq:NN \l_@@_end_name_token ]
 \cs_new:Npn \@@_grab_parm_aux:Nw #1 [ #2 ]
   { \@@_handle_parameter:n {#2} #1 }
-\cs_new:Npn \@@_grab_parm_noop: { \@@_flush:nw { ## } }
+\cs_new:Npn \@@_grab_parm_noop:NNw #1 #2
+  {
+    \token_if_eq_meaning:NNTF \q_@@_mark #2
+      { \@@_flush:nw { #1 } #2 }
+      { \@@_flush:nw { #1 #2 } }
+  }
 %    \end{macrocode}
 % \end{macro}
 %
