@@ -1,0 +1,91 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1:  Double hashes 
+============================================================
+> \foo=macro:#1{->
+ #1
+ ##[parm]
+ ###1
+ ####[parm]
+ #####1
+ ######[parm]
+ {
+! Illegal parameter number in definition of \foo.
+<to be read again> 
+                   ^^J
+l. ...  }
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+> \foo=macro:#1{->
+ This one's weird: ##
+ #1
+ ##[parm]
+ ###1
+ ####[parm]
+ #####1
+ ######[parm]
+ {
+! Illegal parameter number in definition of \foo.
+<to be read again> 
+                   ^^J
+l. ...  }
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+! Illegal parameter number in definition of \foo.
+<to be read again> 
+                   ^^J
+l. ...  }
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+! Illegal parameter number in definition of \foo.
+<to be read again> 
+                   ^^J
+l. ...  }
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+> \foo=macro:#1{->
+ ##
+ ##
+ ####
+ ####
+ ######
+ ######
+ {
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[parm] in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[parm] in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[parm] in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+> \foo=macro:#1{->
+ ##
+ ##
+ ####
+ ####
+ ######
+ ######
+ {
+============================================================

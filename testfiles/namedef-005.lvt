@@ -1,0 +1,55 @@
+% Test corner cases
+\RequirePackage[enable-debug]{expl3}
+\ExplSyntaxOn
+\debug_on:n { check-declarations , deprecation }
+\ExplSyntaxOff
+
+\input regression-test.tex
+\RequirePackage{namedef}
+
+\def\mshow#1{\TYPE{> \string#1=\meaning#1}}
+
+\START
+
+\TEST { Double hashes }
+  {
+    \named\def\foo#[parm]#{^^J
+      #[parm]^^J
+      ##[parm]^^J
+      ###[parm]^^J
+      ####[parm]^^J
+      #####[parm]^^J
+      ######[parm]^^J
+    }
+    \mshow\foo
+    \named\def\foo#[parm]#{^^J
+      This one's weird: #^^J
+      #[parm]^^J
+      ##[parm]^^J
+      ###[parm]^^J
+      ####[parm]^^J
+      #####[parm]^^J
+      ######[parm]^^J
+    }
+    \mshow\foo
+    \named\def\foo#[parm]#{^^J
+      #^^J
+      ##^^J
+      ###^^J
+      ####^^J
+      #####^^J
+      ######^^J
+    }
+    \mshow\foo
+    \named\def\foo{^^J
+      #[parm]^^J
+      ##[parm]^^J
+      ###[parm]^^J
+      ####[parm]^^J
+      #####[parm]^^J
+      ######[parm]^^J
+    }
+    \mshow\foo
+  }
+
+\END
