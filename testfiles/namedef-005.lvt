@@ -52,4 +52,14 @@
     \mshow\foo
   }
 
+\TEST { Nested \named definitions }
+  {
+    \named\def\foo#[A]#[B]{%
+      \named\def\bar##[C]#[A]##[D]{%
+        \baz##[C]##[D]#[B]}}
+    \mshow\foo
+    \foo\a\b
+    \mshow\bar
+  }
+
 \END
