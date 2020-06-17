@@ -749,7 +749,7 @@
       {
         \exp_after:wN \use_none:n \cs:w \c_@@_prefix_tl #1 \cs_end:
         \flag_raise:n { @@_parm_count }
-        \exp_args:Nf \@@_append_to_output:nnNwnn
+        \exp_args:Nf \@@_append_output:nnNwnn
           { \flag_height:n { @@_parm_count } }
           {#1}
       }
@@ -769,7 +769,7 @@
   {
     \cs_if_exist:cTF { \c_@@_prefix_tl #1 }
       {
-        \exp_args:Nf \@@_append_to_output:nnNwnn
+        \exp_args:Nf \@@_append_output:nnNwnn
           { \use:c { \c_@@_prefix_tl #1 } }
           { }
       }
@@ -786,7 +786,7 @@
 % \begin{macro}{\@@_replace_parm:Nn}
 % \begin{macro}{\@@_replace_loop:w}
 % \begin{macro}{\@@_replace_end:wnn, \@@_flush:nw}
-% \begin{macro}{\@@_append_to_output:nnNwnn}
+% \begin{macro}{\@@_append_output:nnNwnn}
 % \begin{macro}{\@@_abort_definition:w}
 %   \cs{@@_replace_parm:Nn} uses the same looping principle as in
 %   \pkg{l3tl}'s \cs{__tl_act:NNNnn}.  It scans the input (here, the
@@ -819,14 +819,14 @@
   { \@@_replace_loop:w #2 \q_@@_stop { #3 #1 } {#4} }
 %    \end{macrocode}
 %
-%   \cs{@@_append_to_output:nnNwnn} takes three arguments (a parameter
+%   \cs{@@_append_output:nnNwnn} takes three arguments (a parameter
 %   number, a parameter name, and a parameter token) and the two output
 %   slots as |#5| and |#6|.  It appends the parameter token and number
 %   to the first output slot, and a definition
 %   |\cs_set:cpn {|\cs{c_@@_prefix_tl}~\meta{name}|} {|\meta{number}|}|
 %   to the second output slot.
 %    \begin{macrocode}
-\cs_new:Npn \@@_append_to_output:nnNwnn #1 #2 #3
+\cs_new:Npn \@@_append_output:nnNwnn #1 #2 #3
     #4 \q_@@_stop #5 #6
   {
     \@@_replace_loop:w #4 \q_@@_stop
@@ -957,7 +957,7 @@
 %
 % \begin{macro}{\NamedDelim, \globalNamedDelim}
 % \begin{macro}{\@@_named_delim_set:NNnn}
-% \begin{macro}{\@@_check_valid_delimiter:n}
+% \begin{macro}{\@@_check_delimiter:n}
 %   At this point everything for the \cs{named} macro is set up,
 %   so we can start using it. Now just some syntactic sugar to
 %   allow the modification of the named argument delimiters.
@@ -980,8 +980,8 @@
 \named \cs_new_protected:Npn \@@_named_delim_set:NNnn
   #[let] #[def] #[begin] #[end]
   {
-    \tl_trim_spaces_apply:nN {#[begin]} \@@_check_valid_delimiter:n
-    \tl_trim_spaces_apply:nN {#[end]}   \@@_check_valid_delimiter:n
+    \tl_trim_spaces_apply:nN {#[begin]} \@@_check_delimiter:n
+    \tl_trim_spaces_apply:nN {#[end]}   \@@_check_delimiter:n
     #[let] \l_@@_begin_name_token #[begin]
     #[let] \l_@@_end_name_token #[end]
     #[def] \@@_grab_parm_do:Nw ##1 #[begin] ##2 #[end]
@@ -992,7 +992,7 @@
 %
 %   Here the \meta{token} is checked against a bunch of forbidden cases.
 %    \begin{macrocode}
-\named \cs_new_protected:Npn \@@_check_valid_delimiter:n #[token]
+\named \cs_new_protected:Npn \@@_check_delimiter:n #[token]
   {
 %    \end{macrocode}
 %   It can't be empty (nor a space: they were trimmed above):
