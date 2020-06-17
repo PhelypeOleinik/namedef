@@ -706,7 +706,12 @@
 %    \begin{macrocode}
     \cs_set:Npn \@@_tmp:w { }
     \group_begin:
-      \tl_set:Nf \l_@@_macro_tl { \cs_to_str:N #2 }
+      \tl_set:Nx \l_@@_macro_tl
+        {
+          \token_if_active:NTF #2
+            { \token_to_str:N #2 }
+            { \c_backslash_str \cs_to_str:N #2 }
+        }
       \@@_process_parameter:Nn \@@_in_parameter:nN {#3}
       \@@_process_parameter:Nn \@@_in_replacement:nN {#4}
       \@@_define:nnnN     {#1} #2
@@ -1079,12 +1084,12 @@
 \msg_new:nnn { namedef } { repeated-parm }
   {
     Parameter~\iow_char:N\#[#1]~duplicated~in~
-    definition~of~\iow_char:N\\\l_@@_macro_tl.
+    definition~of~\l_@@_macro_tl.
   }
 \msg_new:nnn { namedef } { unknown-parm }
   {
     Unknown~parameter~\iow_char:N\#[#1]~in~
-    definition~of~\iow_char:N\\\l_@@_macro_tl.
+    definition~of~\l_@@_macro_tl.
   }
 \msg_new:nnn { namedef } { multi-token-delim }
   {

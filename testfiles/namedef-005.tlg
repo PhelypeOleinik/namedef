@@ -95,3 +95,18 @@ TEST 2:  Nested \named definitions
 > \foo=macro:#1#2->\named \def \bar ##[C]#1##[D]{\baz ##[C]##[D]#2}
 > \bar=macro:#1\a #2->\baz #1#2\b 
 ============================================================
+============================================================
+TEST 3:  Define an active char 
+============================================================
+> ~=macro:#1->(#1)
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of ~.
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+> ~=macro:#1->(#1)
+============================================================

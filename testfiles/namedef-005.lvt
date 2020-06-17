@@ -62,4 +62,12 @@
     \mshow\bar
   }
 
+\TEST { Define an active char }
+  {
+    \named\def~#[A]{(#[A])}
+    \mshow~
+    \named\def~#[A]#[A]{(#[A])}
+    \mshow~
+  }
+
 \END
