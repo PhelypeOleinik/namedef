@@ -23,6 +23,10 @@
 \usepackage{bookmark}
 \usepackage{xcolor}
 
+\def\TODO#1#{\begingroup\afterassignment\TODODO\let\tmp = }
+\def\TODODO{\setbox0=\vbox\bgroup\aftergroup\ENDTODO}
+\def\ENDTODO{\endgroup\ignorespaces}
+
 \begingroup
   \lccode`~=`\%
   \lowercase{\endgroup
@@ -509,6 +513,8 @@
 %<@@=namedef>
 %    \end{macrocode}
 %
+% \subsection{Loading}
+%
 % Load \pkg{expl3}, either through \cs{RequirePackage} or through
 % inputting the generic loader, depending on the format in use
 % (copied from Bruno Le Floch's \pkg{gtl}).
@@ -543,28 +549,53 @@
       {Using named parameters in definitions (PHO)}
 %    \end{macrocode}
 %
-% \begin{macro}{
-%     \flag @@_parm_count,
-%     \c_@@_prefix_tl,
-%     \l_@@_macro_tl
-%   }
-%   A flag (mis)used as a counter to keep track of the parameter number
-%   and a prefix to use as name space for temporary macros.
+% \subsection{Declarations}
+%
+% \begin{macro}{\flag @@_parm_count}
+%   A flag (mis)used as a counter to keep track of the parameter number.
 %    \begin{macrocode}
 \flag_new:n { @@_parm_count }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\c_@@_prefix_tl}
+%   A prefix to use as name space for temporary macros.
+%    \begin{macrocode}
 \tl_const:Nn \c_@@_prefix_tl { namedef~parm~-> }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\l_@@_macro_tl}
+%   A token list to store the name of the macro meing defined for error
+%   messages.
+%    \begin{macrocode}
 \tl_new:N \l_@@_macro_tl
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{
-%     \named,
-%     \@@_grab_prefix:nN,
-%     \@@_start:nNp,
-%   }
-%   Main macro. Starts scanning ahead for prefixes and the definition
+% \begin{macro}{\q_@@_mark,\q_@@_stop,\q_@@_nil}
+%   Quarks used throughout the package.
+%    \begin{macrocode}
+\quark_new:N \q_@@_mark
+\quark_new:N \q_@@_stop
+\quark_new:N \q_@@_nil
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_tmp:w}
+%   A scratch macro.
+%    \begin{macrocode}
+\cs_new_eq:NN \@@_tmp:w ?
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{The top-level \cs{named} macro}
+%
+% \begin{macro}{\named}
+% \begin{macro}{\@@_grab_prefix:nN, \@@_start:nNp}
+%   Starts scanning ahead for prefixes and the definition
 %   command. Once finished the scanning of prefixes, call
-%   \cs{@@_process_begin:nnNn} which will do the heavy lifting.
+%   \cs{@@_process_begin:nNnn} to do the heavy lifting.
 %    \begin{macrocode}
 \cs_new_protected:Npn \named { \@@_grab_prefix:nN { } }
 \cs_new:Npn \@@_grab_prefix:nN #1 #2
@@ -575,8 +606,9 @@
     { #1#2 }
   }
 \cs_new:Npn \@@_start:nNp #1 #2 #3 #
-  { \@@_process_begin:nnNn {#1} #2 {#3} }
+  { \@@_process_begin:nNnn {#1} #2 {#3} }
 %    \end{macrocode}
+% \end{macro}
 % \end{macro}
 %
 % \begin{macro}{\@@_if_prefix:N}
@@ -598,50 +630,55 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{
-%     \@@_process_begin:nnNn,
-%     \@@_define:nnnN,
-%     \@@_process_parameter:Nn,
-%     \@@_parameter_output:n,
-%     \@@_parameter_output:nnw,
-%   }
+% \subsection{Main routine}
+%
+% \begin{macro}{\@@_process_begin:nNnn, \@@_process_parameter:Nn}
+% \begin{macro}{\@@_parameter_output:nnw}
+% \begin{macro}{\@@_define:nnnN}
 %   Here the actual replacement of named parameters by numbered ones
 %   takes place. A group is started to revert the flag and all the
 %   defined temporary macros.
 %
-%   \cs{@@_process_parameter:Nn} \cs{@@_in_parameter:n} starts replacing
-%   a dummy macro in the generic parameter replacement routine by the
-%   macro which counts the parameters and aliases the named parameters
-%   with numbered ones. Finally it starts \cs{@@_replace_parm:nNn},
-%   which scans the \meta{parameter~text} for the named parameters and
-%   replaces them by numbered ones. The second output argument of
-%   \cs{@@_replace_parm:nNn} is a list of definitions which assign a
-%   number to each named parameter so that they can be used in the next
-%   step.
+%   \cs{@@_process_parameter:Nn} \cs{@@_in_parameter:nN} starts
+%   replacing a dummy macro in the generic parameter replacement routine
+%   by the macro which counts the parameters and aliases the named
+%   parameters with numbered ones. Finally it starts
+%   \cs{@@_replace_parm:Nn}, which scans the \meta{parameter~text} for
+%   the named parameters and replaces them by numbered ones. The second
+%   output argument of \cs{@@_replace_parm:Nn} is a list of definitions
+%   which assign a number to each named parameter so that they can be
+%   used in the next step.
 %
-%   \cs{@@_process_parameter:Nn} \cs{@@_in_replacement:n} then starts by
-%   replacing the same dummy macro by one which will replace the named
-%   parameter by its number. Again \cs{@@_replace_parm:nNn} is started,
-%   and its output is the already-processed part of the
+%   \cs{@@_process_parameter:Nn} \cs{@@_in_replacement:nN} then starts
+%   by replacing the same dummy macro by one which will replace the
+%   named parameter by its number. Again \cs{@@_replace_parm:Nn} is
+%   started, and its output is the already-processed part of the
 %   \meta{replacement~text}.
 %
-%   The output of both steps is inserted after \cs{@@_define:nnnN} which
-%   are its two missing arguments in the definition of
-%   \cs{@@_process_begin:nnNn}. After all that is done, all the named
+%   The output of both steps is inserted after \cs{@@_define:nnnN} (it's
+%   missing two arguments in the definition of
+%   \cs{@@_process_begin:nNnn}). After all that is done, all the named
 %   parameters were replaced by numbered ones, so \cs{@@_define:nnnN}
 %   can do its thing.
 %
 %   A final quark is put in the input stream for recovery from errors.
 %   In a successful run this quark is removed by \cs{@@_define:nnnN}.
 %    \begin{macrocode}
-\cs_new_protected:Npn \@@_process_begin:nnNn #1 #2 #3 #4
+\cs_new_protected:Npn \@@_process_begin:nNnn #1 #2 #3 #4
   {
+%    \end{macrocode}
+%   This definition is here just to make sure that any prefixes inserted
+%   before \cs{named} is consumed (silently, unfortunately).
+%
+%   \TODO{Maybe detect prefixes in the definition of \cs{@@_tmp:w} and
+%     forward them to the main macro\dots}
+%    \begin{macrocode}
     \cs_set:Npn \@@_tmp:w { }
     \group_begin:
       \tl_set:Nf \l_@@_macro_tl { \cs_to_str:N #2 }
-      \@@_process_parameter:Nn \@@_in_parameter:n {#3}
-      \@@_process_parameter:Nn \@@_in_replacement:n {#4}
-      \@@_define:nnnN {#1} #2
+      \@@_process_parameter:Nn \@@_in_parameter:nN {#3}
+      \@@_process_parameter:Nn \@@_in_replacement:nN {#4}
+      \@@_define:nnnN     {#1} #2
       \q_stop
   }
 \cs_new_protected:Npn \@@_define:nnnN #1 #2 #3 #4
@@ -651,43 +688,38 @@
   }
 \cs_new:Npn \@@_process_parameter:Nn #1 #2
   {
-    \cs_set_eq:NN \@@_handle_parameter:n #1
+    \cs_set_eq:NN \@@_handle_parameter:nN #1
     \@@_replace_parm:Nn \@@_parameter_output:nnw {#2}
   }
-\cs_new:Npn \@@_parameter_output:n #1
-  { \@@_parameter_output:nnw #1 }
 \cs_new:Npn \@@_parameter_output:nnw #1 #2 #3 \@@_define:nnnN
   { #2 #3 \@@_define:nnnN {#1} }
 %    \end{macrocode}
 % \end{macro}
+% \end{macro}
+% \end{macro}
 %
-% \begin{macro}{
-%     \@@_in_parameter:n,
-%     \@@_in_replacement:n,
-%   }
+% \begin{macro}{\@@_in_parameter:nN, \@@_in_replacement:nN}
 %   These two functions handle the named parameters when they are found
 %   in the \meta{parameter~text} and \meta{replacement~text},
 %   respectively.
 %
-%   \cs{@@_in_parameter:n} checks if the named parameter already exists
+%   \cs{@@_in_parameter:nN} checks if the named parameter already exists
 %   (with \cs{relax} being |true|) and, in such case, throws an error
-%   and aborts the definition. Otherwise the parameter is \cs{let} to
+%   and aborts the definition.
+%   \TODO{I should probably have it do the same as \TeX{} does, rather
+%     than aborting\dots}
+%   Otherwise the parameter is \cs{let} to
 %   \cs{relax} so that if it is found later an error is issued. Setting
-%   a macro to \cs{relax} is an expandable way to define it (the same is
-%   done in \pkg{l3flag}), and this part of the code has to be
-%   expandable so that \cs{@@_tl_act:NNNnn} works properly. After that
+%   a macro to \cs{relax} is an expandable way to define it (the same
+%   approach as in \pkg{l3flag}). After that,
 %   the \cs{flag @@_parm_count} is raised once and its height is used as
-%   the parameter number, which is flushed to the output slot, then the
-%   processing continues.
-%
-%   \cs{@@_in_replacement:n} also checks if the named parameter exists,
-%   however now it will be \emph{not} be \cs{relax}, but a number, so
-%   \cs{cs_if_exist:cTF} can be safely used. If the parameter does not
-%   exist it was never declared in the \meta{parameter~text} (somewhat
-%   like |\def#1{#2}|), then raise an error and abort. Otherwise just
-%   flush |#|\meta{number}.
+%   the parameter number. The current parameter tokens and the parameter
+%   number are flushed to the first (left) output slot, and a definition
+%   |\cs_set:cpn {|\cs{c_@@_prefix_tl}~\meta{name}|} {|\meta{number}|}|
+%   is appended to the second (right) output slot so that the names can
+%   be used in the \meta{replacement~text}.
 %    \begin{macrocode}
-\cs_new:Npn \@@_in_parameter:n #1
+\cs_new:Npn \@@_in_parameter:nN #1
   {
     \if_cs_exist:w \c_@@_prefix_tl #1 \cs_end:
       \exp_after:wN \use_i:nn
@@ -701,20 +733,29 @@
       {
         \exp_after:wN \use_none:n \cs:w \c_@@_prefix_tl #1 \cs_end:
         \flag_raise:n { @@_parm_count }
-        \exp_args:Nf
-          \@@_delay_name_def:nnw
-            { \flag_height:n { @@_parm_count } }
-            {#1}
+        \exp_args:Nf \@@_append_to_output:nnNwnn
+          { \flag_height:n { @@_parm_count } }
+          {#1}
       }
   }
-\cs_new:Npn \@@_in_replacement:n #1
+%    \end{macrocode}
+%
+%   \cs{@@_in_replacement:nN} also checks if the named parameter exists,
+%   however now it will be \emph{not} be \cs{relax}, but the number
+%   defined earlier, so \cs{cs_if_exist:cTF} can be safely used. If the
+%   parameter does not exist it was never declared in the
+%   \meta{parameter~text} (somewhat like |\def#1{#2}|), then raise an
+%   error and abort.
+%   \TODO{Probably shouldn't abort here either\dots}
+%   Otherwise just flush |#|\meta{number}.
+%    \begin{macrocode}
+\cs_new:Npn \@@_in_replacement:nN #1
   {
     \cs_if_exist:cTF { \c_@@_prefix_tl #1 }
       {
-        \exp_args:Nf
-          \@@_delay_name_def:nnw
-            { \use:c { \c_@@_prefix_tl #1 } }
-            { }
+        \exp_args:Nf \@@_append_to_output:nnNwnn
+          { \use:c { \c_@@_prefix_tl #1 } }
+          { }
       }
       {
         \msg_expandable_error:nnn { namedef } { unknown-parm } {#1}
@@ -724,32 +765,18 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{
-%     \@@_replace_parm:Nn,
-%     \@@_group:nn,
-%     \@@_groupify:n,
-%     \@@_space:n,
-%     \@@_tl_act:NNNnn,
-%     \@@_delay_name_def:nnw,
-%     \@@_abort_definition:w,
-%     \@@_flush:nw,
-%     \@@_act_add_result:nnnnn,
-%   }
-%   This bit of the code is a shameless copy/misuse of \pkg{l3tl}'s
-%   \cs{__tl_act:NNNnn}. A wrapper macro \cs{@@_replace_parm:Nn} is
-%   defined to expand \cs{@@_tl_act:NNNnn} then pass the result to |#1|.
-%   The difference between \cs{__tl_act:NNNnn} and \cs{@@_tl_act:NNNnn}
-%   is that the latter has two output slots, which are necessary in the
-%   \meta{parameter~text} scanning step, and the actual |#4| in
-%   \cs{__tl_act:NNNnn} is made permanently empty because it isn't used.
+% \subsection{Scanning routine}
 %
-%   Furthermore \cs{@@_group:nn} (actually \cs{@@_groupify:n}, which is
-%   expanded after \cs{@@_replace_parm:Nn} finishes scanning the group)
-%   discards the second output slot of \cs{@@_tl_act:NNNnn}. The
-%   \cs{@@_group:nn} branch will only be used when scanning the
-%   \meta{replacement~text} (the \meta{parameter~text} can't have
-%   begin/end group tokens), at which time this second slot is more of a
-%   nuisance than a resource.
+% \begin{macro}{\@@_replace_parm:Nn}
+% \begin{macro}{\@@_replace_loop:w}
+% \begin{macro}{\@@_replace_end:wnn, \@@_flush:nw}
+% \begin{macro}{\@@_append_to_output:nnNwnn}
+% \begin{macro}{\@@_abort_definition:w}
+%   \cs{@@_replace_parm:Nn} uses the same looping principle as in
+%   \pkg{l3tl}'s \cs{__tl_act:NNNnn}.  It scans the input (here, the
+%   \meta{parameter~text} and \meta{replacement~text}, separately) token
+%   by token, differentiating spaces, braced tokens (groups), and
+%   \enquote{normal} tokens.
 %    \begin{macrocode}
 \cs_new:Npn \@@_replace_parm:Nn #1 #2
   {
@@ -769,6 +796,70 @@
       }
     #1 \q_@@_stop
   }
+\cs_new:Npn \@@_replace_end:wnn \q_@@_stop #1 #2
+  { \exp_end: {#1} {#2} }
+\cs_new:Npn \@@_flush:nw #1
+    #2 \q_@@_stop #3 #4
+  { \@@_replace_loop:w #2 \q_@@_stop { #3 #1 } {#4} }
+%    \end{macrocode}
+%
+%   \cs{@@_append_to_output:nnNwnn} takes three arguments (a parameter
+%   number, a parameter name, and a parameter token) and the two output
+%   slots as |#5| and |#6|.  It appends the parameter token and number
+%   to the first output slot, and a definition
+%   |\cs_set:cpn {|\cs{c_@@_prefix_tl}~\meta{name}|} {|\meta{number}|}|
+%   to the second output slot.
+%    \begin{macrocode}
+\cs_new:Npn \@@_append_to_output:nnNwnn #1 #2 #3
+    #4 \q_@@_stop #5 #6
+  {
+    \@@_replace_loop:w #4 \q_@@_stop
+      { #5 #3#1 }
+      { #6 \cs_set:cpn { \c_@@_prefix_tl #2 } {#1} }
+  }
+%    \end{macrocode}
+%
+%   This macro doesn't really abort the definition at the time it's
+%   called because it's called from within an |f|-expansion context, so
+%   an attempt to end that prematurely will hardly end well.  Instead
+%   it hijacks the process by inserting
+%   \cs{use_none_delimit_by_q_stop:w} in the second output slot, so that
+%   the definition end as soon as the scanning ends.
+%   \TODO{Can be simplified further.}
+%    \begin{macrocode}
+\cs_new:Npn \@@_abort_definition:w
+    #1 \q_@@_stop #2 #3
+  {
+    \@@_replace_loop:w #1 \q_@@_stop
+      {#2} { #3 \group_end: \use_none_delimit_by_q_stop:w }
+  }
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\@@_replace_normal:N}
+% \begin{macro}{\@@_replace_group:n, \@@_flush_group:nnw}
+% \begin{macro}{\@@_replace_space:w}
+%   Spaces are just passed through: they aren't parameter tokens nor
+%   valid delimiters, so need no special treatment.
+%
+%   Braced tokens are recursively scanned by \cs{@@_replace_parm:Nn},
+%   and the output is flushed inside a pair of braces (explicit catcode
+%   $1$ and $2$ tokens are normalised to |{|_$1$ and |}|_$2$,
+%   respectively)
+%   \TODO{Since \cs{__tl_act:NNNnn} isn't used anymore, this doesn't
+%   have to be |f|-expandable, so this restriciton can probably be
+%   lifted.}
+%
+%   The remaining tokens are examined for their meaning.  If the token
+%   is the quark \cs{q_@@_mark}, the scanning stops; if the token is a
+%   parameter token, what follows is examined with \cs{@@_grab_parm:Nw}
+%   to check if a replacement should be done; otherwise it's fluhsed to
+%   the output.
+%    \begin{macrocode}
 \cs_new:Npn \@@_replace_normal:N #1
   {
     \token_if_eq_meaning:NNTF \q_@@_mark #1
@@ -781,81 +872,47 @@
       }
   }
 \cs_new:Npn \@@_replace_group:n #1
-  {
-    \@@_replace_parm:Nn
-      \@@_flush_group:nnw {#1}
-  }
+  { \@@_replace_parm:Nn \@@_flush_group:nnw {#1} }
+\cs_new:Npn \@@_flush_group:nnw #1 #2
+  { \@@_flush:nw { {#1} } }
 \exp_last_unbraced:NNo
 \cs_new:Npn \@@_replace_space:w \c_space_tl
   { \@@_flush:nw { ~ } }
-\cs_new:Npn \@@_replace_end:wnn \q_@@_stop #1 #2
-  { \exp_end: {#1} {#2} }
-\cs_new:Npn \@@_flush:nw #1
-  #2 \q_@@_stop #3 #4
-  { \@@_replace_loop:w #2 \q_@@_stop { #3 #1 } {#4} }
-\cs_new:Npn \@@_flush_group:nnw #1 #2
-  { \@@_flush:nw { {#1} } }
 %    \end{macrocode}
-%   This bit of the code is defined inside \cs{namedef_tmp:w} because I
-%   don't like \pkg{l3doc} telling me what I should or should not do :)
-%   These parts of the code use internals from \pkg{l3tl} which
-%   shouldn't be used outside of \pkg{l3tl}. To avoid the warnings (and
-%   to say that I know I'm doing wrong) the macros are defined with
-%   placeholders which are then replaced by commands with the correct
-%   prefix.
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \subsection{Parsing a parameter}
+%
+% \begin{macro}{\@@_grab_parm:Nw}
+% \begin{macro}{\@@_grab_parm_aux:NNw, \@@_grab_parm_noop:NNw}
+%   These macros are the final pieces of the parameter replacement
+%   routine. \cs{@@_grab_parm:Nw} checks if the next token in the stream
+%   is a valid |N|-type. If it is, then \cs{@@_grab_parm_aux:NNw} checks
+%   if its character code is equal to \cs{l_@@_begin_name_token}, and if
+%   it is, then call \cs{@@_grab_parm_do:Nw} to grab the named
+%   parameter.  In all other cases, the tokens grabbed are not named
+%   parameters, so they are flushed to the output.
 %    \begin{macrocode}
-\quark_new:N \q_@@_mark
-\quark_new:N \q_@@_stop
-\cs_new:Npn \@@_delay_name_def:nnw #1 #2 #3
-  #4 \q_@@_stop #5 #6
-  {
-    \@@_replace_loop:w #4 \q_@@_stop
-      { #5 #3#1 } { #6 \cs_set:cpn { \c_@@_prefix_tl #2 } {#1} }
-  }
-\cs_new:Npn \@@_abort_definition:w
-  #1 \q_@@_stop #2 #3
-  {
-    \@@_replace_loop:w #1 \q_@@_stop
-      {#2} { #3 \group_end: \use_none_delimit_by_q_stop:w }
-  }
 \cs_new:Npn \@@_grab_parm:Nw #1 #2 \q_@@_stop
   {
     \tl_if_head_is_N_type:nTF {#2}
       { \@@_grab_parm_aux:NNw }
-      { \@@_grab_parm_noop: }
-    #1 #2 \q_@@_stop
+      { \@@_flush:nw }
+        #1 #2 \q_@@_stop
   }
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{
-%      \@@_grab_parm:Nw,
-%      \l_@@_begin_name_token,
-%      \l_@@_end_name_token,
-%      \@@_grab_parm_aux:Nw,
-%      \@@_grab_parm_noop:NNw,
-%    }
-%   These macros are the final pieces of the parameter replacement
-%   routine. \cs{@@_grab_parm:Nw} (defined above) checks if the next
-%   token in the stream is a valid |N|-type. If it is, then follow by
-%   checking for the \cs{l_@@_begin_name_token}, otherwise do nothing.
-%   If what follows a parameter token is the \cs{l_@@_begin_name_token}
-%   (initially |[|), then another function is called to grab the named
-%   parameter (delimited by \cs{l_@@_end_name_token}, initially |]|) and
-%   go on with the processing, otherwise return with
-%   \cs{@@_grab_parm_noop:NNw}.
-%   \begin{macrocode}
 \cs_new:Npn \@@_grab_parm_aux:NNw #1 #2
   {
     \token_if_eq_charcode:NNTF \l_@@_begin_name_token #2
-      { \@@_grab_parm_aux:Nw }
+      { \@@_grab_parm_do:Nw }
       { \@@_grab_parm_noop:NNw }
         #1 #2
   }
-\cs_new_eq:NN \l_@@_begin_name_token [
-\cs_new_eq:NN \l_@@_end_name_token ]
-\cs_new:Npn \@@_grab_parm_aux:Nw #1 [ #2 ]
-  { \@@_handle_parameter:n {#2} #1 }
+%    \end{macrocode}
+%
+%   Here we have to take care not to flush \cs{q_@@_mark} to the output.
+%    \begin{macrocode}
 \cs_new:Npn \@@_grab_parm_noop:NNw #1 #2
   {
     \token_if_eq_meaning:NNTF \q_@@_mark #2
@@ -864,23 +921,37 @@
   }
 %    \end{macrocode}
 % \end{macro}
+% \end{macro}
 %
-% \begin{macro}{
-%      \NamedDelim,
-%      \globalNamedDelim,
-%      \@@_named_delim_set:NNnn,
-%      \@@_check_valid_delimiter:n,
-%    }
+% \subsection{Initialisation}
+%
+% \begin{macro}{\@@_grab_parm_do:Nw}
+% \begin{macro}{\l_@@_begin_name_token, \l_@@_end_name_token}
+%   These three hold the delimiters for named parameters.  They are
+%   initialised here so that we can use \cs{named} (just to show off)
+%   ahead, and they are redefined every time \cs{NamedDelim} is used.
+%    \begin{macrocode}
+\cs_new:Npn \@@_grab_parm_do:Nw #1 [ #2 ]
+  { \@@_handle_parameter:nN {#2} #1 }
+\cs_new_eq:NN \l_@@_begin_name_token [
+\cs_new_eq:NN \l_@@_end_name_token ]
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\NamedDelim, \globalNamedDelim}
+% \begin{macro}{\@@_named_delim_set:NNnn}
+% \begin{macro}{\@@_check_valid_delimiter:n}
 %   At this point everything for the \cs{named} macro is set up,
 %   so we can start using it. Now just some syntactic sugar to
 %   allow the modification of the named argument delimiters.
 %
 %   Both \cs{NamedDelim} and \cs{globalNamedDelim} take two arguments,
 %   an initial and final delimiters for the named argument. Both
-%   delimters should be single non-macro tokens. Some of these
-%   restrictions could be lifted, but it's not really necessary because
-%   the choice of delimiter should not influence the working of the
-%   code, only the readability. A code with |\NamedDelim[]| and
+%   delimters should be single non-control sequence tokens. Some of
+%   these restrictions could be lifted, but it's not really necessary
+%   because the choice of delimiter should not influence the working of
+%   the code, only the readability. A code with |\NamedDelim[]| and
 %   |\def\test#[1][#[2]]{[#[1]][#[2]]}| should work without problems;
 %   the only restriction is that \cs{l_@@_end_name_token} (\emph{i.e.,}
 %   the second argument of \cs{NamedDelim}) cannot appear in the
@@ -897,39 +968,44 @@
     \tl_trim_spaces_apply:nN {#[end]}   \@@_check_valid_delimiter:n
     #[let] \l_@@_begin_name_token #[begin]
     #[let] \l_@@_end_name_token #[end]
-    #[def] \@@_grab_parm_aux:Nw ##1 #[begin] ##2 #[end]
-      { \@@_handle_parameter:n {##2} ##1 }
+    #[def] \@@_grab_parm_do:Nw ##1 #[begin] ##2 #[end]
+      { \@@_handle_parameter:nN {##2} ##1 }
     \use_none:n \q_stop
   }
+%    \end{macrocode}
+%
+%   Here the \meta{token} is checked against a bunch of forbidden cases.
+%    \begin{macrocode}
 \named \cs_new_protected:Npn \@@_check_valid_delimiter:n #[token]
   {
+%    \end{macrocode}
+%   It can't be empty (nor a space: they were trimmed above):
+%    \begin{macrocode}
     \tl_if_empty:nT {#[token]}
       {
         \msg_error:nn { namedef } { blank-delim }
         \use_none_delimit_by_q_stop:w
       }
+%    \end{macrocode}
+%   It can't be multiple tokens:
+%    \begin{macrocode}
     \tl_if_single_token:nF {#[token]}
       {
         \msg_error:nnn { namedef } { multi-token-delim } {#[token]}
         \use_none_delimit_by_q_stop:w
       }
+%    \end{macrocode}
+%   It can't be an active token:
+%   \TODO{It probably can, but I have to add a few safety checks.}
+%    \begin{macrocode}
     \token_if_active:NT #[token]
       {
         \msg_error:nnn { namedef } { macro-delim } {#[token]}
         \use_none_delimit_by_q_stop:w
       }
-    \token_if_cs:NT #[token]
-      {
-        \msg_error:nnx { namedef } { macro-delim }
-          { \c_backslash_str \cs_to_str:N #[token] }
-        \use_none_delimit_by_q_stop:w
-      }
-    \token_if_parameter:NT #[token]
-      {
-        \msg_error:nnx { namedef } { param-delim }
-          { \cs_to_str:N #[token] }
-        \use_none_delimit_by_q_stop:w
-      }
+%    \end{macrocode}
+%   It can't be an implicit begin- or end-group token:
+%    \begin{macrocode}
     \bool_lazy_or:nnT
         { \token_if_group_begin_p:N #[token] }
         { \token_if_group_end_p:N #[token] }
@@ -938,8 +1014,30 @@
           { \cs_to_str:N #[token] }
         \use_none_delimit_by_q_stop:w
       }
+%    \end{macrocode}
+%   It can't be a parameter token:
+%   \TODO{Maybe it can, but maybe it will be ambiguous.  Must check.}
+%    \begin{macrocode}
+    \token_if_parameter:NT #[token]
+      {
+        \msg_error:nnx { namedef } { param-delim }
+          { \cs_to_str:N #[token] }
+        \use_none_delimit_by_q_stop:w
+      }
+%    \end{macrocode}
+%   It can't be a control sequence:
+%   \TODO{It probably can, but I'm not sure I want to allow this.}
+%    \begin{macrocode}
+    \token_if_cs:NT #[token]
+      {
+        \msg_error:nnx { namedef } { macro-delim }
+          { \c_backslash_str \cs_to_str:N #[token] }
+        \use_none_delimit_by_q_stop:w
+      }
   }
 %    \end{macrocode}
+% \end{macro}
+% \end{macro}
 % \end{macro}
 %
 % \subsection{Messages}
