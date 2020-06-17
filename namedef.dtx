@@ -589,12 +589,26 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\q_@@_mark,\q_@@_stop,\q_@@_nil}
+% \begin{macro}{\q_@@_mark,\q_@@_stop}
 %   Quarks used throughout the package.
 %    \begin{macrocode}
 \quark_new:N \q_@@_mark
 \quark_new:N \q_@@_stop
-\quark_new:N \q_@@_nil
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\s_@@}
+%   Scan mark used to skip code.
+%    \begin{macrocode}
+\scan_new:N \s_@@
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_skip_to_scan_mark:w, \@@_skip_to_scan_mark:nw}
+%   Consume everything up to \cs{s_@@}.
+%    \begin{macrocode}
+\cs_new:Npn \@@_skip_to_scan_mark:w  #1    \s_@@ {  }
+\cs_new:Npn \@@_skip_to_scan_mark:nw #1 #2 \s_@@ {#1}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -695,12 +709,12 @@
       \@@_process_parameter:Nn \@@_in_parameter:nN {#3}
       \@@_process_parameter:Nn \@@_in_replacement:nN {#4}
       \@@_define:nnnN     {#1} #2
-      \q_stop
+      \s_@@
   }
 \cs_new_protected:Npn \@@_define:nnnN #1 #2 #3 #4
   {
     \group_end:
-    \use_i_delimit_by_q_stop:nw { #3#4#2{#1} }
+    \@@_skip_to_scan_mark:nw { #3#4#2{#1} }
   }
 \cs_new:Npn \@@_process_parameter:Nn #1 #2
   {
@@ -839,7 +853,7 @@
 %   called because it's called from within an |f|-expansion context, so
 %   an attempt to end that prematurely will hardly end well.  Instead
 %   it hijacks the process by inserting
-%   \cs{use_none_delimit_by_q_stop:w} in the second output slot, so that
+%   \cs{@@_skip_to_scan_mark:w} in the second output slot, so that
 %   the definition end as soon as the scanning ends.
 %   \TODO{Can be simplified further.}
 %    \begin{macrocode}
@@ -847,7 +861,7 @@
     #1 \q_@@_stop #2 #3
   {
     \@@_replace_loop:w #1 \q_@@_stop
-      {#2} { #3 \group_end: \use_none_delimit_by_q_stop:w }
+      {#2} { #3 \group_end: \@@_skip_to_scan_mark:w }
   }
 %    \end{macrocode}
 % \end{macro}
@@ -986,7 +1000,7 @@
     #[let] \l_@@_end_name_token #[end]
     #[def] \@@_grab_parm_do:Nw ##1 #[begin] ##2 #[end]
       { \@@_handle_parameter:nN {##2} ##1 }
-    \use_none:n \q_stop
+    \s_@@
   }
 %    \end{macrocode}
 %
@@ -1000,7 +1014,7 @@
     \tl_if_empty:nT {#[token]}
       {
         \msg_error:nn { namedef } { blank-delim }
-        \use_none_delimit_by_q_stop:w
+        \@@_skip_to_scan_mark:w
       }
 %    \end{macrocode}
 %   It can't be multiple tokens:
@@ -1008,7 +1022,7 @@
     \tl_if_single_token:nF {#[token]}
       {
         \msg_error:nnn { namedef } { multi-token-delim } {#[token]}
-        \use_none_delimit_by_q_stop:w
+        \@@_skip_to_scan_mark:w
       }
 %    \end{macrocode}
 %   It can't be an active token:
@@ -1017,7 +1031,7 @@
     \token_if_active:NT #[token]
       {
         \msg_error:nnn { namedef } { macro-delim } {#[token]}
-        \use_none_delimit_by_q_stop:w
+        \@@_skip_to_scan_mark:w
       }
 %    \end{macrocode}
 %   It can't be an implicit begin- or end-group token:
@@ -1028,7 +1042,7 @@
       {
         \msg_error:nnx { namedef } { group-delim }
           { \cs_to_str:N #[token] }
-        \use_none_delimit_by_q_stop:w
+        \@@_skip_to_scan_mark:w
       }
 %    \end{macrocode}
 %   It can't be a parameter token:
@@ -1038,7 +1052,7 @@
       {
         \msg_error:nnx { namedef } { param-delim }
           { \cs_to_str:N #[token] }
-        \use_none_delimit_by_q_stop:w
+        \@@_skip_to_scan_mark:w
       }
 %    \end{macrocode}
 %   It can't be a control sequence:
@@ -1048,7 +1062,7 @@
       {
         \msg_error:nnx { namedef } { macro-delim }
           { \c_backslash_str \cs_to_str:N #[token] }
-        \use_none_delimit_by_q_stop:w
+        \@@_skip_to_scan_mark:w
       }
   }
 %    \end{macrocode}
