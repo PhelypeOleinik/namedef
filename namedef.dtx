@@ -625,7 +625,7 @@
 % \begin{macro}{\@@_grab_prefix:nN, \@@_start:nNp}
 %   Starts scanning ahead for prefixes and the definition
 %   command. Once finished the scanning of prefixes, call
-%   \cs{@@_process_begin:nNnn} to do the heavy lifting.
+%   \cs{@@_replace_begin:nNnn} to do the heavy lifting.
 %    \begin{macrocode}
 \cs_new_protected:Npn \named { \@@_grab_prefix:nN { } }
 \cs_new:Npn \@@_grab_prefix:nN #1 #2
@@ -636,7 +636,7 @@
     { #1#2 }
   }
 \cs_new:Npn \@@_start:nNp #1 #2 #3 #
-  { \@@_process_begin:nNnn {#1} #2 {#3} }
+  { \@@_replace_begin:nNnn {#1} #2 {#3} }
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -663,14 +663,14 @@
 %
 % \subsection{Main routine}
 %
-% \begin{macro}{\@@_process_begin:nNnn, \@@_process_parameter:Nn}
+% \begin{macro}{\@@_replace_begin:nNnn, \@@_replace_parameter:Nn}
 % \begin{macro}{\@@_parameter_output:nnw}
 % \begin{macro}{\@@_define:nnnN}
 %   Here the actual replacement of named parameters by numbered ones
 %   takes place. A group is started to revert the flag and all the
 %   defined temporary macros.
 %
-%   \cs{@@_process_parameter:Nn} \cs{@@_in_parameter:nN} starts
+%   \cs{@@_replace_parameter:Nn} \cs{@@_in_parameter:nN} starts
 %   replacing a dummy macro in the generic parameter replacement routine
 %   by the macro which counts the parameters and aliases the named
 %   parameters with numbered ones. Finally it starts
@@ -680,7 +680,7 @@
 %   which assign a number to each named parameter so that they can be
 %   used in the next step.
 %
-%   \cs{@@_process_parameter:Nn} \cs{@@_in_replacement:nN} then starts
+%   \cs{@@_replace_parameter:Nn} \cs{@@_in_replacement:nN} then starts
 %   by replacing the same dummy macro by one which will replace the
 %   named parameter by its number. Again \cs{@@_replace_parm:Nn} is
 %   started, and its output is the already-processed part of the
@@ -688,14 +688,14 @@
 %
 %   The output of both steps is inserted after \cs{@@_define:nnnN} (it's
 %   missing two arguments in the definition of
-%   \cs{@@_process_begin:nNnn}). After all that is done, all the named
+%   \cs{@@_replace_begin:nNnn}). After all that is done, all the named
 %   parameters were replaced by numbered ones, so \cs{@@_define:nnnN}
 %   can do its thing.
 %
 %   A final quark is put in the input stream for recovery from errors.
 %   In a successful run this quark is removed by \cs{@@_define:nnnN}.
 %    \begin{macrocode}
-\cs_new_protected:Npn \@@_process_begin:nNnn #1 #2 #3 #4
+\cs_new_protected:Npn \@@_replace_begin:nNnn #1 #2 #3 #4
   {
 %    \end{macrocode}
 %   This definition is here just to make sure that any prefixes inserted
@@ -712,8 +712,8 @@
             { \token_to_str:N #2 }
             { \c_backslash_str \cs_to_str:N #2 }
         }
-      \@@_process_parameter:Nn \@@_in_parameter:nN {#3}
-      \@@_process_parameter:Nn \@@_in_replacement:nN {#4}
+      \@@_replace_parameter:Nn \@@_in_parameter:nN {#3}
+      \@@_replace_parameter:Nn \@@_in_replacement:nN {#4}
       \@@_define:nnnN     {#1} #2
       \s_@@
   }
@@ -722,7 +722,7 @@
     \group_end:
     \@@_skip_to_scan_mark:nw { #3#4#2{#1} }
   }
-\cs_new:Npn \@@_process_parameter:Nn #1 #2
+\cs_new:Npn \@@_replace_parameter:Nn #1 #2
   {
     \cs_set_eq:NN \@@_handle_parameter:nN #1
     \@@_replace_parm:Nn \@@_parameter_output:nnw {#2}
