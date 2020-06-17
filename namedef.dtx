@@ -647,14 +647,15 @@
 %    \begin{macrocode}
 \prg_new_conditional:Npnn \@@_if_prefix:N #1 { TF }
   {
-    \if_meaning:w \protected  #1 \prg_return_true: \else:
-      \if_meaning:w \global   #1 \prg_return_true: \else:
-        \if_meaning:w \outer  #1 \prg_return_true: \else:
-          \if_meaning:w \long #1 \prg_return_true: \else:
-            \prg_return_false:
-          \fi:
-        \fi:
-      \fi:
+    \if_int_compare:w 0
+        \if_meaning:w \tex_protected:D #1 1 \fi:
+        \if_meaning:w \tex_global:D    #1 1 \fi:
+        \if_meaning:w \tex_outer:D     #1 1 \fi:
+        \if_meaning:w \tex_long:D      #1 1 \fi:
+        = 1 \exp_stop_f:
+      \prg_return_true:
+    \else:
+      \prg_return_false:
     \fi:
   }
 %    \end{macrocode}
