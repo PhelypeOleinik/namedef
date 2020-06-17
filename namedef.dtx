@@ -121,6 +121,8 @@
 % revert. If you are reading this you probably have already been through
 % something like this.
 %
+% \subsection{Features}
+%
 % This package defines a macro, \cs{named}, which acts like a prefix for
 % \cs{def} (the same way as \cs{long} and the like), and allows one to
 % rewrite the \cs{hello} macro like this:
@@ -133,6 +135,18 @@
 % example, after |\NamedDelim //| the example above changes to:
 % |\named\def\hello#/who/{Hello #/who/!}|. The default is
 % |\NamedDelim []|.
+%
+% The only dependency of this package is the \LaTeX3 programming layer,
+% \pkg{expl3}, thus this package works in any format and engine
+% supported by \pkg{expl3}. In \LaTeXe, load it with
+% |\usepackage{namedef}|, and in other formats with
+% |\input namedef.sty|.
+%
+% \subsection{Feedback}
+%
+% Bugs, feature requests, or suggestions are most welcome.  You can send
+% them by e-mail or to the source code repository at
+% \url{https://github.com/PhelypeOleinik/namedef}.
 %
 % \section{Usage}
 %
