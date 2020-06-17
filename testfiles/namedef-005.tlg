@@ -19,7 +19,7 @@ You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
 are all screwed up? I'm going to assume that you meant ##.
 > \foo=macro:#1{->
- This one's weird: ##
+ ##
  #1
  ##[parm]
  ###1

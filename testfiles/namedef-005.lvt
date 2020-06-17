@@ -23,7 +23,7 @@
     }
     \mshow\foo
     \named\def\foo#[parm]#{^^J
-      This one's weird: #^^J
+      #^^J % ! Illegal parameter number
       #[parm]^^J
       ##[parm]^^J
       ###[parm]^^J
@@ -33,11 +33,11 @@
     }
     \mshow\foo
     \named\def\foo#[parm]#{^^J
-      #^^J
+      #^^J % ! Illegal parameter number
       ##^^J
-      ###^^J
+      ###^^J % ! Illegal parameter number
       ####^^J
-      #####^^J
+      #####^^J % ! Illegal parameter number
       ######^^J
     }
     \mshow\foo
