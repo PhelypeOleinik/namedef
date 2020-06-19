@@ -827,9 +827,7 @@
 %
 %   \cs{@@_in_parameter:nN} checks if the named parameter already exists
 %   (with \cs{relax} being |true|) and, in such case, throws an error
-%   and aborts the definition.
-%   \TODO{I should probably have it do the same as \TeX{} does, rather
-%     than aborting\dots}
+%   and inserts the number already set for that named parameter.
 %   Otherwise the parameter is \cs{let} to
 %   \cs{relax} so that if it is found later an error is issued. Setting
 %   a macro to \cs{relax} is an expandable way to define it (the same
@@ -840,6 +838,15 @@
 %   |\cs_set:cpn {|\cs{c_@@_prefix_tl}~\meta{name}|} {|\meta{number}|}|
 %   is appended to the second (right) output slot so that the names can
 %   be used in the \meta{replacement~text}.
+%
+%   In case of a repeated parameter it is tricky to do anything
+%   sensible.  In a normal definition, when \TeX{} sees a repeated
+%   parameter number (like in |\def\foo#1#1{}|) it just uses the wrong
+%   number to a parameter number not yet taken, or ignores the parameter
+%   if there's already nine before that.  However here we can't guess
+%   the name of the next parameter, so we can't do much.  The easiest
+%   way out is to just use the same parameter number as before and go
+%   on with out job:  at the end, \TeX{} will complain again about this.
 %    \begin{macrocode}
 \cs_new:Npn \@@_in_parameter:nN #1
   {
@@ -848,17 +855,14 @@
     \else:
       \exp_after:wN \use_ii:nn
     \fi:
-      {
-        \msg_expandable_error:nnn { namedef } { repeated-parm } {#1}
-        \@@_abort_definition:w
-      }
+      { \msg_expandable_error:nnn { namedef } { repeated-parm } {#1} }
       {
         \exp_after:wN \use_none:n \cs:w \c_@@_prefix_tl #1 \cs_end:
         \flag_raise:n { @@_parm_count }
-        \exp_args:Nf \@@_append_output:nnNwnn
-          { \flag_height:n { @@_parm_count } }
-          {#1}
       }
+    \exp_args:Nf \@@_append_output:nnNwnn
+      { \flag_height:n { @@_parm_count } }
+      {#1}
   }
 %    \end{macrocode}
 %

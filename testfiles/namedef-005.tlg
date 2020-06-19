@@ -108,7 +108,13 @@ of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
-> ~=macro:#1->(#1)
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+> ~=macro:#1#21->(#1)
 ============================================================
 ============================================================
 TEST 4:  Prefix order doesn't matter (anymore) 
@@ -120,4 +126,168 @@ TEST 4:  Prefix order doesn't matter (anymore)
 > \foo=\long\outer macro:#1->#1
 > \foo=\protected\outer macro:#1->#1
 > \foo=\protected\long\outer macro:#1->#1
+============================================================
+============================================================
+TEST 5:  Repeated parameters 
+============================================================
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+> \foo=macro:
+#1#21->#1.
+<argument> ...f \foo ##[A]##[A]{##[A]} \show \foo 
+                                                  \named \def \foo ##[A]##[A...
+l. ...  }
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Parameter #[A] duplicated in definition of \foo.l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! Parameters must be numbered consecutively.
+<to be read again> 
+                   1
+l. ...  }
+I've inserted the digit you should have used after the #.
+Type `1' to delete what you did use.
+! You already have nine parameters.
+<argument> ##1##1##1##1##1##1##1##1##1##1
+                                         ##1
+l. ...  }
+I'm going to ignore the # sign you just used.
+! You already have nine parameters.
+<argument> ##1##1##1##1##1##1##1##1##1##1##1
+l. ...  }
+I'm going to ignore the # sign you just used.
+> \foo=macro:
+#1#21#31#41#51#61#71#81#9111->#1.
+<argument> ...A]##[A]##[A]##[A]{##[A]} \show \foo 
+l. ...  }
 ============================================================

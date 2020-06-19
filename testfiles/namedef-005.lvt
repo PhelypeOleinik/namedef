@@ -90,4 +90,12 @@
     \cshow{foo}
   }
 
+\TEST { Repeated parameters }
+  {
+    \named\def\foo#[A]#[A]{#[A]}
+    \show\foo
+    \named\def\foo#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]{#[A]}
+    \show\foo
+  }
+
 \END
