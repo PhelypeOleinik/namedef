@@ -677,6 +677,9 @@
 %   the time} of the definition, rather than at the time it is used.
 %   I don't know if it's possible to detect a \cs{global} after it's
 %   already consumed by \TeX.
+%
+%   \TODO{\cs{afterassignment} tokens are lost.  It would be nice if
+%     it were possible to retrieve it and save until later.}
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_detect_prefixes:Nn #1 #2
   {
@@ -744,6 +747,9 @@
 %   \cs{outer}.  If that wasn't bad enough, do it once again to make
 %   it equal to \cs{relax} in the scope of \cs{@@_replace_named:nNnn}
 %   so that it doesn't blow up.
+%
+%   \TODO{Currently |\named\def{\foo}{bar}| works, but perhaps it
+%     shouldn't.}
 %    \begin{macrocode}
 \cs_new:Npn \@@_kill_outer:nN #1
   {
