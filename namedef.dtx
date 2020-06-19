@@ -175,7 +175,7 @@
 %   of \TeX's primitive \cs{def} commands as well as, for instance,
 %   \pkg{expl3}'s \cs{cs_new:Npn} or the like. However \cs{named} will
 %   not work with \LaTeX's \cs{newcommand} or \pkg{xparse}'s
-%   \cs{NewDocumentCommand} and the like because their syntax is is
+%   \cs{NewDocumentCommand} and the like because their syntax is
 %   completely different.
 %
 %   The \meta{parameter~text} is the same \meta{parameter~text} that
@@ -189,6 +189,7 @@
 %   string of characters (anything valid in |\csname|\dots|\endcsname|).
 %   The \meta{parameter~text} cannot, however, contain numbered
 %   parameters anymore (|#1|,~|#2|,~\dots).
+%   \TODO{This is not enforced... What should be done in this case?}
 %
 %   The \meta{replacement~text} is also the same \meta{replacement~text}
 %   that would be used otherwise, with all |#|\meta{number} replaced by
