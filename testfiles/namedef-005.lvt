@@ -8,6 +8,8 @@
 \RequirePackage{namedef}
 
 \def\mshow#1{\TYPE{> \string#1=\meaning#1}}
+\def\cshow#1{\TYPE{> \expandafter\string\csname#1\endcsname
+  =\expandafter\meaning\csname#1\endcsname}}
 
 \START
 
@@ -72,12 +74,21 @@
 
 \TEST { Prefix order doesn't matter (anymore) }
   {
+    % \tracingall\errorstopmode
     \long\named\def\foo#[A]{#[A]}
     \mshow\foo
     \protected\named\def\foo#[A]{#[A]}
     \mshow\foo
     \long\protected\named\def\foo#[A]{#[A]}
     \mshow\foo
+    \outer\named\def\foo#[A]{#[A]}
+    \cshow{foo}\let\foo\relax
+    \outer\long\named\def\foo#[A]{#[A]}
+    \cshow{foo}\let\foo\relax
+    \outer\protected\named\def\foo#[A]{#[A]}
+    \cshow{foo}\let\foo\relax
+    \outer\long\protected\named\def\foo#[A]{#[A]}
+    \cshow{foo}\let\foo\relax
   }
 
 \END

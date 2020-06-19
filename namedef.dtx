@@ -669,6 +669,19 @@
 %   Defines a scratch macro \cs{@@_tmp:w} and queries its prefixes, then
 %   forwards them to the the next macro to perform the parameter
 %   replacement and definition.
+%
+%   This code would be quite a lot simpler if \cs{outer} didn't exist.
+%   First extract the meaning of \cs{@@_tmp:w}, and pass the prefixes
+%   (before ``|macro:|'') to \cs{@@_extract_prefixes:w}, and then to
+%   \cs{@@_extract_protected:n}, \cs{@@_extract_long:n}, and
+%   \cs{@@_extract_outer:n} in turn to check if each of these prefixes
+%   is there.
+%
+%   \cs{global} can't be checked this way because it's different from
+%   other prefixes in the sense that it affects the definition \emph{at
+%   the time} of the definition, rather than at the time it is used.
+%   I don't know if it's possible to detect a \cs{global} after it's
+%   already consumed by \TeX.
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_detect_prefixes:nN #1 #2
   {
@@ -677,16 +690,46 @@
       {
         \exp_not:N #2
           {
-            \token_if_long_macro:NT \@@_tmp:w
-               { \tex_long:D }
-            \token_if_protected_macro:NT \@@_tmp:w
-               { \tex_protected:D }
-            \token_if_protected_long_macro:NT \@@_tmp:w
-               { \tex_protected:D \tex_long:D }
+            \exp_after:wN \exp_after:wN
+              \exp_after:wN \@@_extract_prefixes:w
+                \exp_after:wN \token_to_meaning:N
+                  \cs:w @@_tmp:w \cs_end: \s_@@
             \exp_not:n {#1}
           }
       }
   }
+\use:x
+  {
+    \cs_new:Npn \exp_not:N \@@_extract_prefixes:w ##1
+        \tl_to_str:n { macro: } ##2 \s_@@
+      {
+        \exp_not:N \@@_extract_protected:n {##1}
+        \exp_not:N \@@_extract_long:n {##1}
+        \exp_not:N \@@_extract_outer:n {##1}
+      }
+  }
+\cs_set:Npn \@@_tmp:w #1 #2
+  {
+    \use:x
+      {
+        \cs_new:cpn { @@_extract_#1:n } ####1
+          {
+            \exp_not:c { @@_extract_#1_aux:w } ####1
+              \token_to_str:N #2 \scan_stop: \token_to_str:N #2 \s_@@
+          }
+        \cs_new:cpn { @@_extract_#1_aux:w } ####1
+            \token_to_str:N #2 ####2 \token_to_str:N #2 ####3 \s_@@
+          {
+            \exp_not:N \if_meaning:w \scan_stop: ####2
+            \exp_not:N \else:
+              \exp_not:c { tex_#1:D }
+            \exp_not:N \fi:
+          }
+      }
+  }
+\@@_tmp:w { protected } { \protected }
+\@@_tmp:w { long } { \long }
+\@@_tmp:w { outer } { \outer }
 %    \end{macrocode}
 % \end{macro}
 %

@@ -116,4 +116,8 @@ TEST 4:  Prefix order doesn't matter (anymore)
 > \foo=\long macro:#1->#1
 > \foo=\protected macro:#1->#1
 > \foo=\protected\long macro:#1->#1
+> \foo=\outer macro:#1->#1
+> \foo=\long\outer macro:#1->#1
+> \foo=\protected\outer macro:#1->#1
+> \foo=\protected\long\outer macro:#1->#1
 ============================================================
