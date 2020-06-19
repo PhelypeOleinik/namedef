@@ -1,11 +1,12 @@
 % Test errors
-\RequirePackage[enable-debug]{expl3}
-\ExplSyntaxOn
-\debug_on:n { check-declarations , deprecation }
-\ExplSyntaxOff
+% \RequirePackage[enable-debug]{expl3}
+% \ExplSyntaxOn
+% \debug_on:n { check-declarations , deprecation }
+% \ExplSyntaxOff
 
 \input regression-test.tex
 \RequirePackage{namedef}
+\RequirePackage{unravel}
 
 \START
 

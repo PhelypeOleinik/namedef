@@ -872,10 +872,9 @@
 %   parameter does not exist it was never declared in the
 %   \meta{parameter~text} (somewhat like |\def#1{#2}|), then raise an
 %   error and abort.
-%   \TODO{Probably shouldn't abort here either\dots}
 %   Otherwise just flush |#|\meta{number}.
 %    \begin{macrocode}
-\cs_new:Npn \@@_in_replacement:nN #1
+\cs_new:Npn \@@_in_replacement:nN #1 #2
   {
     \cs_if_exist:cTF { \c_@@_prefix_tl #1 }
       {
@@ -885,8 +884,11 @@
       }
       {
         \msg_expandable_error:nnn { namedef } { unknown-parm } {#1}
-        \@@_abort_definition:w
+        \exp_args:Ne \@@_append_output:nnNwnn
+          { #2 \@@_begin_name_token: #1 \@@_end_name_token: }
+          { \cs_end: { } \use_none:nn }
       }
+        #2
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1016,7 +1018,7 @@
 %   These macros are the final pieces of the parameter replacement
 %   routine. \cs{@@_grab_parm:Nw} checks if the next token in the stream
 %   is a valid |N|-type. If it is, then \cs{@@_grab_parm_aux:NNw} checks
-%   if its character code is equal to \cs{l_@@_begin_name_token}, and if
+%   if its character code is equal to \cs{@@_begin_name_token:}, and if
 %   it is, then call \cs{@@_grab_parm_do:Nw} to grab the named
 %   parameter.  In all other cases, the tokens grabbed are not named
 %   parameters, so they are flushed to the output.
@@ -1030,7 +1032,7 @@
   }
 \cs_new:Npn \@@_grab_parm_aux:NNw #1 #2
   {
-    \token_if_eq_charcode:NNTF \l_@@_begin_name_token #2
+    \exp_args:No \token_if_eq_charcode:NNTF { \@@_begin_name_token: } #2
       { \@@_grab_parm_do:Nw }
       { \@@_grab_parm_noop:NNw }
         #1 #2
@@ -1052,21 +1054,21 @@
 % \subsection{Initialisation}
 %
 % \begin{macro}{\@@_grab_parm_do:Nw}
-% \begin{macro}{\l_@@_begin_name_token, \l_@@_end_name_token}
+% \begin{macro}{\@@_begin_name_token:, \@@_end_name_token:}
 %   These three hold the delimiters for named parameters.  They are
 %   initialised here so that we can use \cs{named} (just to show off)
 %   ahead, and they are redefined every time \cs{NamedDelim} is used.
 %    \begin{macrocode}
 \cs_new:Npn \@@_grab_parm_do:Nw #1 [ #2 ]
   { \@@_handle_parameter:nN {#2} #1 }
-\cs_new_eq:NN \l_@@_begin_name_token [
-\cs_new_eq:NN \l_@@_end_name_token ]
+\cs_new:Npn \@@_begin_name_token: { [ }
+\cs_new:Npn \@@_end_name_token: { ] }
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
 %
 % \begin{macro}{\NamedDelim, \globalNamedDelim}
-% \begin{macro}{\@@_named_delim_set:NNnn}
+% \begin{macro}{\@@_named_delim_set:Nnn}
 % \begin{macro}{\@@_check_delimiter:n}
 %   At this point everything for the \cs{named} macro is set up,
 %   so we can start using it. Now just some syntactic sugar to
@@ -1079,21 +1081,21 @@
 %   because the choice of delimiter should not influence the working of
 %   the code, only the readability. A code with |\NamedDelim[]| and
 %   |\def\test#[1][#[2]]{[#[1]][#[2]]}| should work without problems;
-%   the only restriction is that \cs{l_@@_end_name_token} (\emph{i.e.,}
+%   the only restriction is that \cs{@@_end_name_token:} (\emph{i.e.,}
 %   the second argument of \cs{NamedDelim}) cannot appear in the
 %   parameter name.
 %    \begin{macrocode}
 \cs_new_protected:Npn \NamedDelim
-  { \@@_named_delim_set:NNnn \cs_set_eq:NN  \cs_set:Npn  }
+  { \@@_named_delim_set:Nnn \cs_set:Npn  }
 \cs_new_protected:Npn \globalNamedDelim
-  { \@@_named_delim_set:NNnn \cs_gset_eq:NN \cs_gset:Npn }
-\named \cs_new_protected:Npn \@@_named_delim_set:NNnn
-  #[let] #[def] #[begin] #[end]
+  { \@@_named_delim_set:Nnn \cs_gset:Npn }
+\named \cs_new_protected:Npn \@@_named_delim_set:Nnn
+    #[def] #[begin] #[end]
   {
     \tl_trim_spaces_apply:nN {#[begin]} \@@_check_delimiter:n
     \tl_trim_spaces_apply:nN {#[end]}   \@@_check_delimiter:n
-    #[let] \l_@@_begin_name_token #[begin]
-    #[let] \l_@@_end_name_token #[end]
+    #[def] \@@_begin_name_token: {#[begin]}
+    #[def] \@@_end_name_token: {#[end]}
     #[def] \@@_grab_parm_do:Nw ##1 #[begin] ##2 #[end]
       { \@@_handle_parameter:nN {##2} ##1 }
     \s_@@

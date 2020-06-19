@@ -44,11 +44,11 @@
     }
     \mshow\foo
     \named\def\foo{^^J
-      #[parm]^^J
+      #[parm]^^J % Gets an extra # from namedef
       ##[parm]^^J
-      ###[parm]^^J
+      ###[parm]^^J % Gets an extra # from namedef
       ####[parm]^^J
-      #####[parm]^^J
+      #####[parm]^^J % Gets an extra # from namedef
       ######[parm]^^J
     }
     \mshow\foo
@@ -95,6 +95,14 @@
     \named\def\foo#[A]#[A]{#[A]}
     \show\foo
     \named\def\foo#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]{#[A]}
+    \show\foo
+  }
+
+\TEST { Unknown parameters }
+  {
+    \named\def\foo{#[B]}
+    \show\foo
+    \named\def\foo#[C]{#[A]#[A]#[B]#[B]}
     \show\foo
   }
 
