@@ -80,14 +80,13 @@ of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
-> \foo=macro:#1{->
- ##
- ##
- ####
- ####
- ######
- ######
- {
+> \foo=macro:->
+ ##[parm]
+ ##[parm]
+ ####[parm]
+ ####[parm]
+ ######[parm]
+ ######[parm]
 ============================================================
 ============================================================
 TEST 2:  Nested \named definitions 
@@ -289,5 +288,63 @@ I'm going to ignore the # sign you just used.
 > \foo=macro:
 #1#21#31#41#51#61#71#81#9111->#1.
 <argument> ...A]##[A]##[A]##[A]{##[A]} \show \foo 
+l. ...  }
+============================================================
+============================================================
+TEST 6:  Unknown parameters 
+============================================================
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[B] in definition of \foo.
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+> \foo=macro:
+->##[B].
+<argument>  \named \def \foo {##[B]} \show \foo 
+                                                \named \def \foo ##[C]{##[A]...
+l. ...  }
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[A] in definition of \foo.
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[A] in definition of \foo.
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[B] in definition of \foo.
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+! Undefined control sequence.
+<argument> \::error 
+                    ! namedef: Unknown parameter #[B] in definition of \foo.
+l. ...  }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+> \foo=macro:
+#1->##[A]##[A]##[B]##[B].
+<argument> ...C]{##[A]##[A]##[B]##[B]} \show \foo 
 l. ...  }
 ============================================================
