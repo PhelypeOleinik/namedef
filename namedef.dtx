@@ -1032,7 +1032,8 @@
   }
 \cs_new:Npn \@@_grab_parm_aux:NNw #1 #2
   {
-    \exp_args:No \token_if_eq_charcode:NNTF { \@@_begin_name_token: } #2
+    \exp_args:No \token_if_eq_charcode:NNTF
+        { \@@_begin_name_token: } #2
       { \@@_grab_parm_do:Nw }
       { \@@_grab_parm_noop:NNw }
         #1 #2
