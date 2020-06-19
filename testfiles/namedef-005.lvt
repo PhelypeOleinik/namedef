@@ -93,17 +93,38 @@
 \TEST { Repeated parameters }
   {
     \named\def\foo#[A]#[A]{#[A]}
-    \show\foo
+    \mshow\foo
     \named\def\foo#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]#[A]{#[A]}
-    \show\foo
+    \mshow\foo
   }
 
 \TEST { Unknown parameters }
   {
     \named\def\foo{#[B]}
-    \show\foo
+    \mshow\foo
     \named\def\foo#[C]{#[A]#[A]#[B]#[B]}
-    \show\foo
+    \mshow\foo
+  }
+
+\TEST { Catcode change }
+  {
+    \catcode`|=11
+    \NamedDelim{|}{|}
+    \catcode`|=12
+    \named\def\foo#|A|{#|A|}
+    \mshow\foo
+  }
+
+\TEST { Missing delimiter }
+  {
+    \named\def\wrong#[oops{#[oops}
+    \mshow\wrong
+    \named\def\wrong#[oops#[another]{#[oops}
+    \mshow\wrong
+    \named\def\wrong#[oops]{{#[oops}#[oops}
+    \mshow\wrong
+    \named\def\wrong#[oops]{#[oops{#[oops]}}
+    \mshow\wrong
   }
 
 \END

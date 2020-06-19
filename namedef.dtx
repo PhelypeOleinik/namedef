@@ -213,17 +213,10 @@
 %   a group. While you can use both, you should be careful not to
 %   interleave them too much or you might exhaust \TeX's save stack.
 %
-%   Furthermore, catcode changes to the delimiter will make the code not
-%   work:
-%   \begin{Verbatim}
-%     \catcode`|=11
-%     \NamedDelim{|}{|}
-%     \catcode`|=12
-%     \named\def\wrong#|oops|{#|oops|}
-%   \end{Verbatim}
-%   Other than that pretty much anything goes as delimiter, and it
-%   doesn't matter if \meta{begin-token} and \meta{end-token} are the
-%   same or not.
+%   Delimiters are matched based on their character code (using \cs{if})
+%   so changes in their category code doesn't matter as long as that
+%   change doesn't prevent the character from becoming a token or the
+%   category code isn't \enquote{too special} :-) \quad (see above).
 %
 %   The choice of delimiter is mostly ``what you like better''. Neither
 %   the delimter tokens nor the name of the parameter make it to the
@@ -1016,13 +1009,20 @@
 %
 % \begin{macro}{\@@_grab_parm:Nw}
 % \begin{macro}{\@@_grab_parm_aux:NNw, \@@_grab_parm_noop:NNw}
+% \begin{macro}{\@@_grab_parm_scan:NNw}
+% \begin{macro}{\@@_grab_parm_loop:nw, \@@_grab_parm_end:nw}
+% \begin{macro}{
+%     \@@_parm_get_normal:nN,
+%     \@@_parm_get_group:nn,
+%     \@@_parm_get_space:nw
+%   }
 %   These macros are the final pieces of the parameter replacement
 %   routine. \cs{@@_grab_parm:Nw} checks if the next token in the stream
 %   is a valid |N|-type. If it is, then \cs{@@_grab_parm_aux:NNw} checks
 %   if its character code is equal to \cs{@@_begin_name_token:}, and if
-%   it is, then call \cs{@@_grab_parm_do:Nw} to grab the named
-%   parameter.  In all other cases, the tokens grabbed are not named
-%   parameters, so they are flushed to the output.
+%   it is, then call \cs{@@_grab_parm_scan:NNw} to scan ahead for the
+%   named parameter.  In all other cases, the tokens grabbed are not
+%   named parameters, so they are flushed to the output.
 %    \begin{macrocode}
 \cs_new:Npn \@@_grab_parm:Nw #1 #2 \q_@@_stop
   {
@@ -1035,7 +1035,7 @@
   {
     \exp_args:No \token_if_eq_charcode:NNTF
         { \@@_begin_name_token: } #2
-      { \@@_grab_parm_do:Nw }
+      { \@@_grab_parm_scan:NNw }
       { \@@_grab_parm_noop:NNw }
         #1 #2
   }
@@ -1050,23 +1050,78 @@
       { \@@_flush:nw { #1 #2 } }
   }
 %    \end{macrocode}
+%
+%   Here's the actual scanning routine.  It would be a lot faster to
+%   just define a delimiter macro with the right tokens, however this
+%   would have two consequences:  first, missing delimiters would be
+%   rather catastrophic, and second, the catcode of the |end| delimiter
+%   would need to match.  With a manual scanning, we can kill off those
+%   two items at the cost of some performance.
+%
+%   The scanning routine is pretty standard: a looping macro, an output
+%   slot, the tokens to be scanned, \cs{q_@@_stop} to delimit the whole
+%   thing (\cs{q_@@_mark} is redundant here: the one from the main
+%   scanning rountine is already in place), and the parameter token
+%   safely stored at the end:
+%    \begin{macrocode}
+\cs_new:Npn \@@_grab_parm_scan:NNw #1 #2 #3 \q_@@_stop
+  { \@@_grab_parm_loop:nw { } #3 \q_@@_stop {#1} }
+\cs_new:Npn \@@_grab_parm_loop:nw #1 #2 \q_@@_stop
+  {
+    \tl_if_head_is_N_type:nTF {#2}
+      { \@@_parm_get_normal:nN }
+      {
+        \tl_if_head_is_group:nTF {#2}
+          { \@@_parm_get_group:nn }
+          { \@@_parm_get_space:nw }
+      }
+    {#1} #2 \q_@@_stop
+  }
+%    \end{macrocode}
+%
+%   If the end of the token list was reached (signalled by
+%   \cs{q_@@_mark}), the |end| delimiter is missing.  If so, raise an
+%   error and recover as gracefully as possible.  Otherwise, if the
+%   current token is the same character as the \cs{@@_end_name_token:},
+%   then the scaning is complete.
+%    \begin{macrocode}
+\cs_new:Npn \@@_parm_get_normal:nN #1 #2
+  {
+    \token_if_eq_meaning:NNTF \q_@@_mark #2
+      {
+        \msg_expandable_error:nn { namedef } { missing-end }
+        \@@_grab_parm_end:nw {#1} #2
+      }
+      {
+        \exp_args:No \token_if_eq_charcode:NNTF
+            { \@@_end_name_token: } #2
+          { \@@_grab_parm_end:nw {#1} }
+          { \@@_grab_parm_loop:nw {#1#2} }
+      }
+  }
+\cs_new:Npn \@@_parm_get_group:nn #1 #2
+  { \@@_grab_parm_loop:nw { #1{#2} } }
+\cs_new:Npn \@@_parm_get_space:nw #1 ~
+  { \@@_grab_parm_loop:nw { #1~ } }
+\cs_new:Npn \@@_grab_parm_end:nw #1 #2 \q_@@_stop #3
+  { \@@_handle_parameter:nN {#1} #3 #2 \q_@@_stop }
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
 % \end{macro}
 % \end{macro}
 %
-% \subsection{Initialisation}
+% \subsection{Changing delimiters}
 %
-% \begin{macro}{\@@_grab_parm_do:Nw}
 % \begin{macro}{\@@_begin_name_token:, \@@_end_name_token:}
-%   These three hold the delimiters for named parameters.  They are
+%   These two hold the delimiters for named parameters.  They are
 %   initialised here so that we can use \cs{named} (just to show off)
 %   ahead, and they are redefined every time \cs{NamedDelim} is used.
 %    \begin{macrocode}
-\cs_new:Npn \@@_grab_parm_do:Nw #1 [ #2 ]
-  { \@@_handle_parameter:nN {#2} #1 }
 \cs_new:Npn \@@_begin_name_token: { [ }
 \cs_new:Npn \@@_end_name_token: { ] }
 %    \end{macrocode}
-% \end{macro}
 % \end{macro}
 %
 % \begin{macro}{\NamedDelim, \globalNamedDelim}
@@ -1098,8 +1153,6 @@
     \tl_trim_spaces_apply:nN {#[end]}   \@@_check_delimiter:n
     #[def] \@@_begin_name_token: {#[begin]}
     #[def] \@@_end_name_token: {#[end]}
-    #[def] \@@_grab_parm_do:Nw ##1 #[begin] ##2 #[end]
-      { \@@_handle_parameter:nN {##2} ##1 }
     \s_@@
   }
 %    \end{macrocode}
@@ -1211,6 +1264,11 @@
   {
     Invalid~\iow_char:N\\named~parameter~delimiter.~
     Delimiters~for~named~parameters~can't~be~parameter~tokens.
+  }
+\msg_new:nnn { namedef } { missing-end }
+  {
+    Missing~\@@_end_name_token:\iow_char:N\ inserted~in~
+    definition~of~\l_@@_macro_tl.
   }
 %    \end{macrocode}
 %
