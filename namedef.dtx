@@ -163,11 +163,11 @@
 %   |#[|\meta{text}|]| by a suitable |#|\meta{number} for \TeX{} to
 %   carry on with the definition.
 %
-%   The \meta{other~prefixes} can be any of \cs{long}, \cs{outer},
-%   \cs{global}, and \cs{protected}. As for \TeX, their relative order
-%   doesn't matter, but \cs{named} \emph{must} be the first so it can
-%   see the other prefixes and use them accordingly. Any prefix placed
-%   before \cs{named} will not have the desired effect.
+%   The \meta{other~prefixes} can be any combination of \cs{long},
+%   \cs{outer}, \cs{global}, and \cs{protected}. As for \TeX, their
+%   relative order doesn't matter, except that \cs{named} must appear
+%   \emph{before} any \cs{global} prefix.  Other prefixes are detected
+%   whether placed before or after \cs{named}.
 %
 %   The \cs{def} command can be anything. The package will not check the
 %   validity of the command, it will simply drag the token along until
@@ -432,16 +432,16 @@
 % \end{example}
 % \smallskip
 %
-% Whatever prefixes put before \cs{named} will be lost. Notice that
-% even though \cs{protected} is used, the macro itself is not defined
-% with \cs{protected}:
-%   \protected\named\long\edef\hello#[who]{Hello #[who]!}
-% \begin{example}[label=Wrong Prefixes]
-%   \protected      \long\edef\hello#1{Hello #1!}
-%   \protected\named\long\edef\hello#[who]{Hello #[who]!}
-%   |mshow|hello
-% \end{example}
-% \smallskip
+%^^A Whatever prefixes put before \cs{named} will be lost. Notice that
+%^^A even though \cs{protected} is used, the macro itself is not defined
+%^^A with \cs{protected}:
+%^^A   \protected\named\long\edef\hello#[who]{Hello #[who]!}
+%^^A \begin{example}[label=Wrong Prefixes]
+%^^A   \protected      \long\edef\hello#1{Hello #1!}
+%^^A   \protected\named\long\edef\hello#[who]{Hello #[who]!}
+%^^A   |mshow|hello
+%^^A \end{example}
+%^^A \smallskip
 %
 % This example is just to show that the named argument delimiter doesn't
 % interfere with the text in the macro:
@@ -636,7 +636,10 @@
     { #1#2 }
   }
 \cs_new:Npn \@@_start:nNp #1 #2 #3 #
-  { \@@_replace_begin:nNnn {#1} #2 {#3} }
+  {
+    \@@_detect_prefixes:nN {#1}
+    \@@_replace_begin:nNnn      #2 {#3}
+  }
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -658,6 +661,31 @@
     \else:
       \prg_return_false:
     \fi:
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_detect_prefixes:nN}
+%   Defines a scratch macro \cs{@@_tmp:w} and queries its prefixes, then
+%   forwards them to the the next macro to perform the parameter
+%   replacement and definition.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_detect_prefixes:nN #1 #2
+  {
+    \cs_set_nopar:Npn \@@_tmp:w { }
+    \use:x
+      {
+        \exp_not:N #2
+          {
+            \token_if_long_macro:NT \@@_tmp:w
+               { \tex_long:D }
+            \token_if_protected_macro:NT \@@_tmp:w
+               { \tex_protected:D }
+            \token_if_protected_long_macro:NT \@@_tmp:w
+               { \tex_protected:D \tex_long:D }
+            \exp_not:n {#1}
+          }
+      }
   }
 %    \end{macrocode}
 % \end{macro}
@@ -698,14 +726,6 @@
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_replace_begin:nNnn #1 #2 #3 #4
   {
-%    \end{macrocode}
-%   This definition is here just to make sure that any prefixes inserted
-%   before \cs{named} is consumed (silently, unfortunately).
-%
-%   \TODO{Maybe detect prefixes in the definition of \cs{@@_tmp:w} and
-%     forward them to the main macro\dots}
-%    \begin{macrocode}
-    \cs_set:Npn \@@_tmp:w { }
     \group_begin:
       \tl_set:Nx \l_@@_macro_tl
         {

@@ -70,4 +70,14 @@
     \mshow~
   }
 
+\TEST { Prefix order doesn't matter (anymore) }
+  {
+    \long\named\def\foo#[A]{#[A]}
+    \mshow\foo
+    \protected\named\def\foo#[A]{#[A]}
+    \mshow\foo
+    \long\protected\named\def\foo#[A]{#[A]}
+    \mshow\foo
+  }
+
 \END

@@ -13,6 +13,7 @@
 
 \TEST { Basics }
   {
+    \show\ok
           \def\hello#1{Hello #1!}
     \mshow\hello
     \named\def\hello#[who]{Hello #[who]!}
@@ -27,13 +28,13 @@
     \mshow\hello
   }
 
-\TEST { Wrong Prefixes (only the first line has \protected) }
-  {
-    \protected      \long\edef\hello#1{Hello #1!}
-    \mshow\hello
-    \protected\named\long\edef\hello#[who]{Hello #[who]!}
-    \mshow\hello
-  }
+% \TEST { Wrong Prefixes (only the first line has \protected) }
+%   {
+%     \protected      \long\edef\hello#1{Hello #1!}
+%     \mshow\hello
+%     \protected\named\long\edef\hello#[who]{Hello #[who]!}
+%     \mshow\hello
+%   }
 
 \TEST { Argument delimited by [ and ] }
   {

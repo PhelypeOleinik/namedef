@@ -110,3 +110,10 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 > ~=macro:#1->(#1)
 ============================================================
+============================================================
+TEST 4:  Prefix order doesn't matter (anymore) 
+============================================================
+> \foo=\long macro:#1->#1
+> \foo=\protected macro:#1->#1
+> \foo=\protected\long macro:#1->#1
+============================================================
