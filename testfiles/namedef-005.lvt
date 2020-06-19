@@ -74,7 +74,6 @@
 
 \TEST { Prefix order doesn't matter (anymore) }
   {
-    % \tracingall\errorstopmode
     \long\named\def\foo#[A]{#[A]}
     \mshow\foo
     \protected\named\def\foo#[A]{#[A]}
@@ -82,13 +81,13 @@
     \long\protected\named\def\foo#[A]{#[A]}
     \mshow\foo
     \outer\named\def\foo#[A]{#[A]}
-    \cshow{foo}\let\foo\relax
+    \cshow{foo}
     \outer\long\named\def\foo#[A]{#[A]}
-    \cshow{foo}\let\foo\relax
+    \cshow{foo}
     \outer\protected\named\def\foo#[A]{#[A]}
-    \cshow{foo}\let\foo\relax
+    \cshow{foo}
     \outer\long\protected\named\def\foo#[A]{#[A]}
-    \cshow{foo}\let\foo\relax
+    \cshow{foo}
   }
 
 \END

@@ -622,23 +622,18 @@
 % \subsection{The top-level \cs{named} macro}
 %
 % \begin{macro}{\named}
-% \begin{macro}{\@@_grab_prefix:nN, \@@_start:nNp}
+% \begin{macro}{\@@_grab_prefix:nN}
 %   Starts scanning ahead for prefixes and the definition
 %   command. Once finished the scanning of prefixes, call
-%   \cs{@@_replace_begin:nNnn} to do the heavy lifting.
+%   \cs{@@_replace_named:nNnn} to do the heavy lifting.
 %    \begin{macrocode}
 \cs_new_protected:Npn \named { \@@_grab_prefix:nN { } }
 \cs_new:Npn \@@_grab_prefix:nN #1 #2
   {
     \@@_if_prefix:NTF #2
       { \@@_grab_prefix:nN }
-      { \@@_start:nNp }
+      { \@@_detect_prefixes:Nn \@@_kill_outer:nN }
     { #1#2 }
-  }
-\cs_new:Npn \@@_start:nNp #1 #2 #3 #
-  {
-    \@@_detect_prefixes:nN {#1}
-    \@@_replace_begin:nNnn      #2 {#3}
   }
 %    \end{macrocode}
 % \end{macro}
@@ -665,7 +660,13 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_detect_prefixes:nN}
+% \begin{macro}{\@@_detect_prefixes:Nn}
+% \begin{macro}{\@@_extract_prefixes:w}
+% \begin{macro}{
+%     \@@_extract_protected:n, \@@_extract_protected_aux:w,
+%     \@@_extract_long:n,      \@@_extract_long_aux:w,
+%     \@@_extract_outer:n,     \@@_extract_outer_aux:w,
+%   }
 %   Defines a scratch macro \cs{@@_tmp:w} and queries its prefixes, then
 %   forwards them to the the next macro to perform the parameter
 %   replacement and definition.
@@ -683,18 +684,18 @@
 %   I don't know if it's possible to detect a \cs{global} after it's
 %   already consumed by \TeX.
 %    \begin{macrocode}
-\cs_new_protected:Npn \@@_detect_prefixes:nN #1 #2
+\cs_new_protected:Npn \@@_detect_prefixes:Nn #1 #2
   {
     \cs_set_nopar:Npn \@@_tmp:w { }
     \use:x
       {
-        \exp_not:N #2
+        \exp_not:N #1
           {
             \exp_after:wN \exp_after:wN
               \exp_after:wN \@@_extract_prefixes:w
                 \exp_after:wN \token_to_meaning:N
                   \cs:w @@_tmp:w \cs_end: \s_@@
-            \exp_not:n {#1}
+            \exp_not:n {#2}
           }
       }
   }
@@ -732,12 +733,38 @@
 \@@_tmp:w { outer } { \outer }
 %    \end{macrocode}
 % \end{macro}
+% \end{macro}
+% \end{macro}
 %
 % \subsection{Main routine}
 %
-% \begin{macro}{\@@_replace_begin:nNnn, \@@_replace_parameter:Nn}
-% \begin{macro}{\@@_parameter_output:nnw}
+% \begin{macro}{\@@_kill_outer:nN}
+% \begin{macro}{\@@_start:nNp, \@@_replace_named:nNnn}
+% \begin{macro}{\@@_replace_parameter:Nn, \@@_parameter_output:nnw}
 % \begin{macro}{\@@_define:nnnN}
+%   Here we play dirty: abuse the fact that \cs{exp_not:N} temporarily
+%   makes the \cs{noexpand}ed control sequence temporarily equal to
+%   \cs{relax}.  But rather than using it in an \cs{edef} or whatnot,
+%   hit \cs{exp_not:N} with \cs{exp_after:wN}, and then quickly grab
+%   it with \cs{@@_start:nNp}, so it's safe to grab it, even if it's
+%   \cs{outer}.  If that wasn't bad enough, do it once again to make
+%   it equal to \cs{relax} in the scope of \cs{@@_replace_named:nNnn}
+%   so that it doesn't blow up.
+%    \begin{macrocode}
+\cs_new:Npn \@@_kill_outer:nN #1
+  {
+    \cs_set:Npn \@@_tmp:w { \@@_start:nNp {#1} }
+    \exp_after:wN \@@_tmp:w \exp_not:N
+  }
+\cs_new_protected:Npn \@@_start:nNp #1 #2 #3 #
+  {
+    \group_begin:
+      \int_set:Nn \tex_escapechar:D { `\\ }
+      \exp_after:wN \cs_set_eq:NN \exp_not:N #2 \scan_stop:
+      \@@_replace_named:nNnn {#1} #2 {#3}
+  }
+%    \end{macrocode}
+%
 %   Here the actual replacement of named parameters by numbered ones
 %   takes place. A group is started to revert the flag and all the
 %   defined temporary macros.
@@ -760,22 +787,16 @@
 %
 %   The output of both steps is inserted after \cs{@@_define:nnnN} (it's
 %   missing two arguments in the definition of
-%   \cs{@@_replace_begin:nNnn}). After all that is done, all the named
+%   \cs{@@_replace_named:nNnn}). After all that is done, all the named
 %   parameters were replaced by numbered ones, so \cs{@@_define:nnnN}
 %   can do its thing.
 %
 %   A final quark is put in the input stream for recovery from errors.
 %   In a successful run this quark is removed by \cs{@@_define:nnnN}.
 %    \begin{macrocode}
-\cs_new_protected:Npn \@@_replace_begin:nNnn #1 #2 #3 #4
+\cs_new_protected:Npn \@@_replace_named:nNnn #1 #2 #3 #4
   {
-    \group_begin:
-      \tl_set:Nx \l_@@_macro_tl
-        {
-          \token_if_active:NTF #2
-            { \token_to_str:N #2 }
-            { \c_backslash_str \cs_to_str:N #2 }
-        }
+      \tl_set:Nx \l_@@_macro_tl { \token_to_str:N #2 }
       \@@_replace_parameter:Nn \@@_in_parameter:nN {#3}
       \@@_replace_parameter:Nn \@@_in_replacement:nN {#4}
       \@@_define:nnnN     {#1} #2
@@ -784,7 +805,7 @@
 \cs_new_protected:Npn \@@_define:nnnN #1 #2 #3 #4
   {
     \group_end:
-    \@@_skip_to_scan_mark:nw { #3#4#2{#1} }
+    #3#4#2{#1}
   }
 \cs_new:Npn \@@_replace_parameter:Nn #1 #2
   {
@@ -794,6 +815,7 @@
 \cs_new:Npn \@@_parameter_output:nnw #1 #2 #3 \@@_define:nnnN
   { #2 #3 \@@_define:nnnN {#1} }
 %    \end{macrocode}
+% \end{macro}
 % \end{macro}
 % \end{macro}
 % \end{macro}
