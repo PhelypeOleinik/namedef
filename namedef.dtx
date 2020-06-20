@@ -15,6 +15,10 @@
 % This work is "maintained" (as per the LPPL maintenance status)
 % by Phelype Oleinik.
 % 
+%<*package>
+\def\namedefDate{2020-06-20}
+\def\namedefVersion{1.0}
+%</package>
 %<*driver>
 \documentclass[a4paper,full,inline]{l3doc}
 \usepackage[T1]{fontenc}
@@ -90,8 +94,8 @@
 % \title{^^A
 %   The \pkg{namedef} package\\
 %   Named parameters in \TeX{} definitions^^A
-%   \thanks{This file has version number 0.2,
-%           last revised \today.}
+%   \thanks{This file has version number \namedefVersion,
+%           last revised \namedefDate.}
 % }
 %
 % \author{^^A
@@ -103,7 +107,7 @@
 %    }^^A
 % }
 %
-% \date{Released \today}
+% \date{Released \namedefDate}
 %
 % \maketitle
 %
@@ -680,7 +684,7 @@
       }
     \@@_tmp:w
   }
-      {namedef} {2019-05-15} {0.1}
+      {namedef} {\namedefDate} {\namedefVersion}
       {Named parameters in TeX definitions (PHO)}
 %    \end{macrocode}
 % \end{macro}
