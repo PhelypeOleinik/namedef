@@ -653,6 +653,7 @@
 %
 % \subsection{Loading}
 %
+% \begin{macro}{\@@_end_package_hook:}
 % Load \pkg{expl3}, either through \cs{RequirePackage} or through
 % inputting the generic loader, depending on the format in use
 % (copied from Bruno Le Floch's \pkg{gtl}).
@@ -686,6 +687,7 @@
       {namedef} {2019-05-15} {0.1}
       {Using named parameters in definitions (PHO)}
 %    \end{macrocode}
+% \end{macro}
 %
 % \subsection{Declarations}
 %
@@ -750,7 +752,7 @@
 %   \cs{@@_replace_named:nNnn} to do the heavy lifting.
 %    \begin{macrocode}
 \cs_new_protected:Npn \named { \@@_grab_prefix:nN { } }
-\cs_new:Npn \@@_grab_prefix:nN #1 #2
+\cs_new_protected:Npn \@@_grab_prefix:nN #1 #2
   {
     \@@_if_prefix:NTF #2
       { \@@_grab_prefix:nN }
@@ -761,7 +763,7 @@
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\@@_if_prefix:N}
+% \begin{macro}[pTF]{\@@_if_prefix:N}
 %   Checks against a list of valid prefixes and returns |true| or
 %   |false| accordingly.
 %    \begin{macrocode}
@@ -783,8 +785,8 @@
 % \end{macro}
 %
 % \begin{macro}{\@@_detect_prefixes:Nn}
-% \begin{macro}{\@@_extract_prefixes:w}
-% \begin{macro}{
+% \begin{macro}[rEXP]{\@@_extract_prefixes:w}
+% \begin{macro}[rEXP]{
 %     \@@_extract_protected:n, \@@_extract_protected_aux:w,
 %     \@@_extract_long:n,      \@@_extract_long_aux:w,
 %     \@@_extract_outer:n,     \@@_extract_outer_aux:w,
@@ -834,7 +836,7 @@
         \exp_not:N \@@_extract_outer:n {##1}
       }
   }
-\cs_set:Npn \@@_tmp:w #1 #2
+\cs_set_protected:Npn \@@_tmp:w #1 #2
   {
     \use:x
       {
@@ -866,6 +868,7 @@
 % \begin{macro}{\@@_kill_outer:nN}
 % \begin{macro}{\@@_start:nNp, \@@_replace_named:nNnn}
 % \begin{macro}{\@@_replace_parameter:Nn, \@@_parameter_output:nnw}
+% \begin{macro}{\@@_handle_parameter:nN}
 % \begin{macro}{\@@_define:nnnN}
 %   Here we play dirty: abuse the fact that \cs{exp_not:N} temporarily
 %   makes the \cs{noexpand}ed control sequence temporarily equal to
@@ -879,7 +882,7 @@
 %   \TODO{Currently |\named\def{\foo}{bar}| works, but perhaps it
 %     shouldn't.}
 %    \begin{macrocode}
-\cs_new:Npn \@@_kill_outer:nN #1
+\cs_new_protected:Npn \@@_kill_outer:nN #1
   {
     \cs_set:Npn \@@_tmp:w { \@@_start:nNp {#1} }
     \exp_after:wN \@@_tmp:w \exp_not:N
@@ -935,14 +938,17 @@
     \group_end:
     #3#4#2{#1}
   }
-\cs_new:Npn \@@_replace_parameter:Nn #1 #2
+\cs_new_protected:Npn \@@_replace_parameter:Nn #1 #2
   {
     \cs_set_eq:NN \@@_handle_parameter:nN #1
     \@@_replace_parm:Nn \@@_parameter_output:nnw {#2}
   }
-\cs_new:Npn \@@_parameter_output:nnw #1 #2 #3 \@@_define:nnnN
+\cs_new_eq:NN \@@_handle_parameter:nN ?
+\cs_new_protected:Npn \@@_parameter_output:nnw #1 #2
+    #3 \@@_define:nnnN
   { #2 #3 \@@_define:nnnN {#1} }
 %    \end{macrocode}
+% \end{macro}
 % \end{macro}
 % \end{macro}
 % \end{macro}
@@ -1023,11 +1029,11 @@
 %
 % \subsection{Scanning routine}
 %
-% \begin{macro}{\@@_replace_parm:Nn}
-% \begin{macro}{\@@_replace_loop:w}
-% \begin{macro}{\@@_replace_end:wnn, \@@_flush:nw}
-% \begin{macro}{\@@_append_output:nnNwnn}
-% \begin{macro}{\@@_abort_definition:w}
+% \begin{macro}[EXP]{\@@_replace_parm:Nn}
+% \begin{macro}[EXP]{\@@_replace_loop:w}
+% \begin{macro}[EXP]{\@@_replace_end:wnn, \@@_flush:nw}
+% \begin{macro}[EXP]{\@@_append_output:nnNwnn}
+% \begin{macro}[EXP]{\@@_abort_definition:w}
 %   \cs{@@_replace_parm:Nn} uses the same looping principle as in
 %   \pkg{l3tl}'s \cs{__tl_act:NNNnn}.  It scans the input (here, the
 %   \meta{parameter~text} and \meta{replacement~text}, separately) token
@@ -1096,9 +1102,9 @@
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\@@_replace_normal:N}
-% \begin{macro}{\@@_replace_group:n, \@@_flush_group:nnw}
-% \begin{macro}{\@@_replace_space:w}
+% \begin{macro}[EXP]{\@@_replace_normal:N}
+% \begin{macro}[EXP]{\@@_replace_group:n, \@@_flush_group:nnw}
+% \begin{macro}[EXP]{\@@_replace_space:w}
 %   Spaces are just passed through: they aren't parameter tokens nor
 %   valid delimiters, so need no special treatment.
 %
@@ -1141,11 +1147,11 @@
 %
 % \subsection{Parsing a parameter}
 %
-% \begin{macro}{\@@_grab_parm:Nw}
-% \begin{macro}{\@@_grab_parm_aux:NNw, \@@_grab_parm_noop:NNw}
-% \begin{macro}{\@@_grab_parm_scan:NNw}
-% \begin{macro}{\@@_grab_parm_loop:nw, \@@_grab_parm_end:nw}
-% \begin{macro}{
+% \begin{macro}[EXP]{\@@_grab_parm:Nw}
+% \begin{macro}[EXP]{\@@_grab_parm_aux:NNw, \@@_grab_parm_noop:NNw}
+% \begin{macro}[EXP]{\@@_grab_parm_scan:NNw}
+% \begin{macro}[EXP]{\@@_grab_parm_loop:nw, \@@_grab_parm_end:nw}
+% \begin{macro}[EXP]{
 %     \@@_parm_get_normal:nN,
 %     \@@_parm_get_group:nn,
 %     \@@_parm_get_space:nw
@@ -1248,7 +1254,7 @@
 %
 % \subsection{Changing delimiters}
 %
-% \begin{macro}{\@@_begin_name_token:, \@@_end_name_token:}
+% \begin{macro}[EXP]{\@@_begin_name_token:, \@@_end_name_token:}
 %   These two hold the delimiters for named parameters.  They are
 %   initialised here so that we can use \cs{named} (just to show off)
 %   ahead, and they are redefined every time \cs{NamedDelim} is used.
