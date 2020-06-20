@@ -127,4 +127,33 @@
     \mshow\wrong
   }
 
+\catcode`\|=13
+\NamedDelim||
+\TEST { Active delimiter (undefined) }
+  {
+    \named\def\foo#|A|{#|A|}
+    \mshow\foo
+  }
+
+\let|\relax
+\TEST { Active delimiter (\relax) }
+  {
+    \named\def\foo#|A|{#|A|}
+    \mshow\foo
+  }
+
+\let|\expanded
+\TEST { Active delimiter (\expanded) }
+  {
+    \named\def\foo#|A|{#|A|}
+    \mshow\foo
+  }
+
+\def|{foo}
+\TEST { Active delimiter (macro) }
+  {
+    \named\def\foo#|A|{#|A|}
+    \mshow\foo
+  }
+
 \END

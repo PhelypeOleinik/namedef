@@ -99,6 +99,10 @@
 \TEST { active (13) }
   {
     \NamedDelim{|}{|}
+          \def\hello#1{Hello #1!}
+    \mshow\hello
+    \named\def\hello#|who|{Hello #|who|!}
+    \mshow\hello
   }
 
 \END

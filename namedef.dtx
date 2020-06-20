@@ -206,7 +206,7 @@
 %   default |#[|\meta{name}|]| to
 %   |#|\meta{begin-token}\meta{name}\meta{end-token}. Both delimiters
 %   must be one single non-macro token.  Valid delimiters are character
-%   tokens with catcode $3$, $4$, $7$, $8$, $11$, or $12$
+%   tokens with catcode $3$, $4$, $7$, $8$, $11$, $12$, or $13$
 %   (see section~\ref{sec:delimiters}).
 %
 %   \cs{globalNamedDelim} is the same as \cs{NamedDelim} except that the
@@ -376,12 +376,12 @@
 % \label{sec:delimiters}
 %
 % The delimiters that can be used should be character tokens with
-% catcode $3$, $4$, $7$, $8$, $11$, or $12$.  Characters with catcode
-% $0$, $5$, $9$, $14$, and $15$ don't produce tokens to start with, so
-% they can't possibly be used.  The remaining category codes are
-% currently disallowed in the code because they make the input ambiguous
-% or because they make the implementation more complex with no real
-% advantage.
+% catcode $3$, $4$, $7$, $8$, $11$, $12$, or $13$.  Characters with
+% catcode $0$, $5$, $9$, $14$, and $15$ don't produce tokens to start
+% with, so they can't possibly be used.  The remaining category codes
+% are currently disallowed in the code because they make the input
+% ambiguous or because they make the implementation more complex with no
+% real advantage.
 %
 % Catcodes $1$ and $2$ (begin-/end-group) cannot be used because they
 % become indistinguishable from the braces that delimit the
@@ -399,10 +399,6 @@
 % extra precautions to avoid losing the space when passing arguments
 % around.  Since it makes for a strange-looking syntax (our eyes are
 % trained to ignore spaces), this is not supported.
-%
-% Catcode $13$ (active) should also be possible, but then the delimiter
-% has to be identified by both character code and meaning.  I will
-% likely implement this in the future.
 %
 % \section{Boring examples}
 %
@@ -1315,15 +1311,6 @@
     \tl_if_single_token:nF {#[token]}
       {
         \msg_error:nnn { namedef } { multi-token-delim } {#[token]}
-        \@@_skip_to_scan_mark:w
-      }
-%    \end{macrocode}
-%   It can't be an active token:
-%   \TODO{It probably can, but I have to add a few safety checks.}
-%    \begin{macrocode}
-    \token_if_active:NT #[token]
-      {
-        \msg_error:nnn { namedef } { macro-delim } {#[token]}
         \@@_skip_to_scan_mark:w
       }
 %    \end{macrocode}

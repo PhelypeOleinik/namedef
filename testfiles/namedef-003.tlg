@@ -88,13 +88,6 @@ TEST 10:  other (12)
 ============================================================
 TEST 11:  active (13) 
 ============================================================
-! Package namedef Error: Invalid \named parameter delimiter `|'. Delimiters
-(namedef)                for named parameters can't be control sequence nor
-(namedef)                active characters.
-Type <return> to continue.
- ...                                              
-l. ...  }
-LaTeX does not know anything more about this error, sorry.
-Try typing <return> to proceed.
-If that doesn't work, type X <return> to quit.
+> \hello=macro:#1->Hello #1!
+> \hello=macro:#1->Hello #1!
 ============================================================
