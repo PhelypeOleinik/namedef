@@ -7,3 +7,5 @@ build/*
 *.log
 *.pdf
 *.sty
+
+*.zip
