@@ -50,7 +50,7 @@
     \@x@protect#XmacroY%
   \fi}
 \NamedDelim ()
-\named\long \def \@eyargdef #(macro)#(hasopt)#(narg){%
+\named\long \def \@yargdef #(macro)#(hasopt)#(narg){%
   \ifx#(hasopt)\tw@
     \def\reserved@b##11{[####1]}%
   \else
