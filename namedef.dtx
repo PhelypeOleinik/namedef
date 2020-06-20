@@ -73,6 +73,7 @@
   \fi
   \global\linenotrue
 }
+\pdfstringdefDisableCommands{\let\footnotemark\relax}
 
 % Substitute lmtt/it by lmtt/sl
 \DeclareFontShape{T1}{lmtt}{lc}{it}{<->ssub*lmtt/lc/sl}{}
@@ -235,6 +236,8 @@
 % can't ``declare'' them as with \cs{def}, and b) because it's supposed
 % to be used for user-level interfaces, which usually (and preferably)
 % have a low argument count, so numbering shouldn't be a problem.
+% That said, see section~\ref{sec:newcommand}.
+%
 % For \pkg{xparse}'s \cs{NewDocumentCommand} the situation is the same.
 % Other than these, \cs{named} should work for whatever type of
 % definition that uses the
@@ -402,7 +405,7 @@
 % has to be identified by both character code and meaning.  I will
 % likely implement this in the future.
 %
-% \section{Examples}
+% \section{Boring examples}
 %
 % The following examples show two definitions each, which are the same,
 % but the second uses \cs{named}. The third line in each example shows
@@ -511,6 +514,132 @@
 %   |mshow|test
 % \end{example}
 % \smallskip
+%
+% \section{Interesting\protect\footnotemark\ examples}
+% \footnotetext{Terms and Conditions may apply.}
+%
+% These examples shows a few more elaborate ways to use \pkg{namedef}.
+%
+% \subsection{Extended \cs{newcommand}}
+% \label{sec:newcommand}
+%
+% Here's an implementation to allow the syntax of \pkg{namedef} in
+% \cs{newcommand}. It uses \pkg{xparse} to handle optional arguments,
+% and uses \cs{newcommand} itself to define (possibly) optional argument
+% handling, so the resulting command uses \LaTeXe's command parsing
+% machinery.
+%
+% The syntax of the defined command is:
+%
+% |\newnamedcommand|\meta{*}\cs[no-index]{\meta{cmd}}\oarg{arg-list}^^A
+%   [\meta{opt}=\meta{default}]\marg{definition}
+%
+% \noindent where everything is the same as in regular \cs{newcommand},
+% except for the optional arguments \meta{arg-list} and
+% \meta{opt}=\meta{default}.  \meta{arg-list} should be a
+% comma-separated list of named parameters as \cs{named} would expect,
+% and \meta{opt} is a named parameter, and \meta{default} is its default
+% value.  The usage would be something like:
+%
+% |\newnamedcommand\foo[#[one],#[two]][#[opt]=default]%|\par
+% \quad|{#[one], #[two], and #[opt]}|
+%
+% \noindent which translates to:
+%
+% |\newcommand\foo[3][default]%|\par
+% \quad|{#2, #3, and #1}|
+%
+% First, load \pkg{xparse} and \pkg{namedef}, and define the top-level
+% commands to use a common |\NNC_newcommand:NnNnnn|.
+% |\NNC_newcommand:NnNnnn| will store the mandatory arguments in
+% a \texttt{seq} variable for easier access, then call
+% |\__NNC_newcommand:NnNn| to do the \cs{newcommand} part of the job,
+% and |\__NNC_named_def:nNnn| to \cs{named} part.
+% |\new...|, |\renew...|, and |\provide...| versions are defined, but
+% since a \cs{def} is used later with no checking, the behaviour is
+% not exactly the same as you'd get with \cs{newcommand} in this regard.
+%
+% \begin{example}
+%   \usepackage{namedef}
+%   \usepackage{xparse}
+%   \ExplSyntaxOn
+%   \seq_new:N \l__NNC_args_seq
+%   \scan_new:N \s__NNC
+%   \NewDocumentCommand \newnamedcommand { s m o o m }
+%     { \NNC_newcommand:NnNnnn \newcommand {#1} #2 {#3} {#4} {#5} }
+%   \NewDocumentCommand \renewnamedcommand { s m o o m }
+%     { \NNC_newcommand:NnNnnn \renewcommand {#1} #2 {#3} {#4} {#5} }
+%   \NewDocumentCommand \providenamedcommand { s m o o m }
+%     { \NNC_newcommand:NnNnnn \providecommand {#1} #2 {#3} {#4} {#5} }
+%   \named \cs_new_protected:Npn \NNC_newcommand:NnNnnn
+%       #[newcmd] #[star] #[cmd] #[args] #[opt] #[defn]
+%     {
+%       \seq_clear:N \l__NNC_args_seq
+%       \IfValueT {#[args]}
+%         { \seq_set_from_clist:Nn \l__NNC_args_seq {#[args]} }
+%       \__NNC_newcommand:NnNn #[newcmd] {#[star]} #[cmd] {#[opt]}
+%       \__NNC_named_def:nNnn {#[star]} #[cmd] {#[opt]} {#[defn]}
+%     }
+% \end{example}
+%
+% |\__NNC_newcommand:NnNn| does the \cs{newcommand} part of the job. It
+% takes the arguments read in by \pkg{xparse}, and translates them into
+% the \cs{newcommand} syntax. The number of items in the |#[args]|
+% parameter is counted and left within brackets, and the default value
+% of the optional argument is also left within another pair of brackets.
+% This step is executed with an empty definition because the named
+% parameters will cause havoc in \cs{newcommand}.
+%
+% \begin{example}[firstnumber=last]
+%   \named \cs_new_protected:Npn \__NNC_newcommand:NnNn
+%       #[newcmd] #[star] #[cmd] #[opt]
+%     {
+%       \use:x
+%         {
+%           \exp_not:N #[newcmd]
+%           \IfBooleanT {#[star]} { * }
+%           \exp_not:N #[cmd]
+%           \seq_if_empty:NF \l__NNC_args_seq
+%             { [ \seq_count:N \l__NNC_args_seq ] }
+%           \IfValueT {#[opt]} { [ \__NNC_opt_value:w #[opt] \s__NNC ] }
+%             { }
+%         }
+%     }
+%   \cs_new:Npn \__NNC_opt_value:w #1 = #2 \s__NNC {#2}
+% \end{example}
+%
+% Now |\__NNC_named_def:nNnn| will do the \cs{named} part.
+% First the |#[star]| argument (if not present) becomes \cs{long}, and
+% then comes \cs{named} and \cs{def}.  Then, if an optional argument was
+% given, the command we need to define is |\\foo| rather than |\foo|, so
+% use take care of that with \cs{token_to_str:N}, and then leave the
+% named parameter given for the optional argument within brackets.
+% If there's no optional argument, we just define |#[cmd]| (pretty
+% boring).  Then we call \cs{seq_use:Nn} on the mandatory arguments to
+% lay them flat for \cs{named}, and then the parameter text (|#[defn]|),
+% unexpanded.
+%
+% \begin{example}[firstnumber=last]
+%   \named \cs_new_protected:Npn \__NNC_named_def:nNnn
+%       #[star] #[cmd] #[opt] #[defn]
+%     {
+%       \use:x
+%         {
+%           \IfBooleanF {#[star]} { \long }
+%           \named \def
+%           \IfValueTF {#[opt]}
+%             {
+%               \exp_not:c { \token_to_str:N #[cmd] }
+%                 [ \exp_not:o { \__NNC_opt_name:w #[opt] \s__NNC } ]
+%             }
+%             { \exp_not:N #[cmd] }
+%           \seq_use:Nn \l__NNC_args_seq { }
+%           { \exp_not:n {#[defn]} }
+%         }
+%     }
+%   \cs_new:Npn \__NNC_opt_name:w #1 = #2 \s__NNC {#1}
+%   \ExplSyntaxOff
+% \end{example}
 %
 % \end{documentation}
 %
