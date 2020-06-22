@@ -23,7 +23,7 @@ TEST 3:  Argument delimited by [ and ]
 > \hello=macro:[#1]->Hello #1!
 ============================================================
 ============================================================
-TEST 4:  Argument delimited by [ and ] 
+TEST 4:  Argument delimited by | and | 
 ============================================================
 > \hello=macro:[#1]->Hello #1!
 > \hello=macro:[#1]->Hello #1!

@@ -44,7 +44,7 @@
     \mshow\hello
   }
 
-\TEST { Argument delimited by [ and ] }
+\TEST { Argument delimited by | and | }
   {
     \NamedDelim{|}{|}
           \def\hello[#1]{Hello #1!}
